@@ -5,17 +5,17 @@ import { FileText, Building, Banknote, HeartHandshake } from 'lucide-react';
 import { ScrollArea } from '@/components/ui/scroll-area';
 
 const RequirementItem = ({ icon: Icon, title, items }: { icon: any, title: string, items: string[] }) => (
-  <AccordionItem value={title} className="border-b-0 mb-4 bg-white border rounded-lg overflow-hidden shadow-sm">
-    <AccordionTrigger className="px-4 py-3 hover:no-underline bg-gray-50/50 hover:bg-gray-50">
+  <AccordionItem value={title} className="border-b-0 mb-4 bg-card border rounded-lg overflow-hidden shadow-sm">
+    <AccordionTrigger className="px-4 py-3 hover:no-underline bg-background hover:bg-accent">
       <div className="flex items-center gap-3 text-left">
         <div className="p-2 bg-primary/10 rounded-full text-primary">
           <Icon className="h-5 w-5" />
         </div>
-        <span className="font-semibold text-sm md:text-base">{title}</span>
+        <span className="font-semibold text-sm md:text-base text-foreground">{title}</span>
       </div>
     </AccordionTrigger>
-    <AccordionContent className="px-4 pb-4 pt-2 bg-white">
-      <ul className="list-disc pl-9 space-y-1 text-sm text-gray-600 mt-2">
+    <AccordionContent className="px-4 pb-4 pt-2 bg-card">
+      <ul className="list-disc pl-9 space-y-1 text-sm text-muted-foreground mt-2">
         {items.map((item, index) => (
           <li key={index}>{item}</li>
         ))}
