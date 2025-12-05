@@ -1,6 +1,6 @@
 import React from 'react';
 import { Card, CardContent } from '@/components/ui/card';
-import { Bus, FileText, ChevronRight, Bike, Briefcase, Zap } from 'lucide-react';
+import { Bus, FileText, ChevronRight, Bike, Briefcase, Zap, Stethoscope } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { cn } from '@/lib/utils';
 
@@ -14,7 +14,7 @@ const ServiceItem = ({ icon: Icon, title, desc, link, colorClass, bgClass, textC
         <Icon className={cn("h-6 w-6", textClass)} />
       </div>
       <div className="flex-1">
-        <h3 className="font-bold text-base text-gray-800">{title}</h3>
+        <h3 className="font-bold text-base text-gray-800 dark:text-gray-100">{title}</h3>
         <p className="text-xs text-muted-foreground mt-1 leading-relaxed">
           {desc}
         </p>
@@ -29,7 +29,7 @@ const Services = () => {
     <div className="space-y-6 pb-20">
       <div className="space-y-2">
         <h2 className="text-2xl font-bold tracking-tight text-secondary">Services</h2>
-        <p className="text-muted-foreground">Access municipal services and tools.</p>
+        <p className="text-muted-foreground">Access municipal and private services.</p>
       </div>
 
       <div className="grid gap-4">
@@ -49,8 +49,18 @@ const Services = () => {
           desc="Monitor BISELCO power and water interruptions."
           link="/services/utilities"
           colorClass="border-l-yellow-500"
-          bgClass="bg-yellow-100"
-          textClass="text-yellow-600"
+          bgClass="bg-yellow-100 dark:bg-yellow-900/30"
+          textClass="text-yellow-600 dark:text-yellow-400"
+        />
+
+        <ServiceItem 
+          icon={Stethoscope}
+          title="Private Services"
+          desc="Directory of clinics, dentists, and lawyers."
+          link="/services/private"
+          colorClass="border-l-rose-500"
+          bgClass="bg-rose-100 dark:bg-rose-900/30"
+          textClass="text-rose-600 dark:text-rose-400"
         />
 
         <ServiceItem 
@@ -59,8 +69,8 @@ const Services = () => {
           desc="Find local job opportunities in Coron."
           link="/services/jobs"
           colorClass="border-l-blue-500"
-          bgClass="bg-blue-100"
-          textClass="text-blue-600"
+          bgClass="bg-blue-100 dark:bg-blue-900/30"
+          textClass="text-blue-600 dark:text-blue-400"
         />
 
         <ServiceItem 
@@ -69,8 +79,8 @@ const Services = () => {
           desc="Free ride service for stranded students."
           link="/services/pasundo"
           colorClass="border-l-green-500"
-          bgClass="bg-green-100"
-          textClass="text-green-600"
+          bgClass="bg-green-100 dark:bg-green-900/30"
+          textClass="text-green-600 dark:text-green-400"
         />
 
         <ServiceItem 
@@ -79,8 +89,8 @@ const Services = () => {
           desc="Checklist for permits, IDs, and certificates."
           link="/services/requirements"
           colorClass="border-l-secondary"
-          bgClass="bg-secondary/10"
-          textClass="text-secondary"
+          bgClass="bg-secondary/10 dark:bg-secondary/20"
+          textClass="text-secondary dark:text-secondary-foreground"
         />
       </div>
     </div>
