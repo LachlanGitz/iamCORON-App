@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useTheme } from 'next-themes';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Label } from '@/components/ui/label';
-import { Switch }g from '@/components/ui/switch';
+import { Switch } from '@/components/ui/switch'; // Corrected: removed 'g'
 import { Button } from '@/components/ui/button';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Input } from '@/components/ui/input';
