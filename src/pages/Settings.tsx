@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useTheme } from 'next-themes';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Label } from '@/components/ui/label';
-import { Switch } from '@/components/ui/switch';
+import { Switch }g from '@/components/ui/switch';
 import { Button } from '@/components/ui/button';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Input } from '@/components/ui/input';
@@ -22,12 +22,14 @@ import {
   MapPin,
   Home,
   Hotel,
-  Loader2 // Added Loader2 import
+  Loader2
 } from 'lucide-react';
 import { toast } from 'sonner';
 import { useAuth } from '@/components/auth/SessionContextProvider';
 import { supabase } from '@/integrations/supabase/client';
 import { useNavigate } from 'react-router-dom';
+
+const OPENCAGE_API_KEY = import.meta.env.VITE_OPENCAGE_API_KEY;
 
 const Settings = () => {
   const { theme, setTheme } = useTheme();
@@ -41,6 +43,7 @@ const Settings = () => {
   const [hotelName, setHotelName] = useState(profile?.hotel_name || '');
   const [isEditingProfile, setIsEditingProfile] = useState(false);
   const [isSavingProfile, setIsSavingProfile] = useState(false);
+  const [isFetchingLocation, setIsFetchingLocation] = useState(false);
 
   useEffect(() => {
     if (profile) {
@@ -92,6 +95,60 @@ const Settings = () => {
       toast.error("Failed to update profile.", { description: error.message });
     } finally {
       setIsSavingProfile(false);
+    }
+  };
+
+  const handleGetGPSLocation = () => {
+    if (!OPENCAGE_API_KEY || OPENCAGE_API_KEY === 'YOUR_OPENCAGE_API_KEY_HERE') {
+      toast.error("Geocoding API Key Missing", {
+        description: "Please set VITE_OPENCAGE_API_KEY in your .env file to use this feature."
+      });
+      return;
+    }
+
+    setIsFetchingLocation(true);
+    toast.loading("Fetching your current location...", { id: 'location-toast' });
+
+    if (navigator.geolocation) {
+      navigator.geolocation.getCurrentPosition(
+        async (position) => {
+          const { latitude, longitude } = position.coords;
+          try {
+            const response = await fetch(
+              `https://api.opencagedata.com/geocode/v1/json?q=${latitude}+${longitude}&key=${OPENCAGE_API_KEY}`
+            );
+            const data = await response.json();
+
+            if (data.results && data.results.length > 0) {
+              const formattedAddress = data.results[0].formatted;
+              setAddress(formattedAddress);
+              toast.success("Location fetched!", {
+                description: "Your address has been updated.",
+                id: 'location-toast'
+              });
+            } else {
+              toast.error("Could not find address for your location.", { id: 'location-toast' });
+            }
+          } catch (error) {
+            console.error("Error during reverse geocoding:", error);
+            toast.error("Failed to get address from coordinates.", { id: 'location-toast' });
+          } finally {
+            setIsFetchingLocation(false);
+          }
+        },
+        (error) => {
+          console.error("Geolocation error:", error);
+          toast.error("Failed to get GPS location.", {
+            description: error.message,
+            id: 'location-toast'
+          });
+          setIsFetchingLocation(false);
+        },
+        { enableHighAccuracy: true, timeout: 10000, maximumAge: 0 }
+      );
+    } else {
+      toast.error("Geolocation is not supported by your browser.", { id: 'location-toast' });
+      setIsFetchingLocation(false);
     }
   };
 
@@ -184,8 +241,19 @@ const Settings = () => {
                   <Home className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
                   <Textarea id="address" placeholder="House No., Street, Barangay, Town" className="pl-9 min-h-[80px]" value={address} onChange={(e) => setAddress(e.target.value)} />
                 </div>
-                <Button type="button" variant="outline" size="sm" className="w-full text-xs" onClick={() => toast.info("Getting GPS location...")}>
-                  <MapPin className="mr-2 h-3 w-3" />
+                <Button 
+                  type="button" 
+                  variant="outline" 
+                  size="sm" 
+                  className="w-full text-xs" 
+                  onClick={handleGetGPSLocation}
+                  disabled={isFetchingLocation}
+                >
+                  {isFetchingLocation ? (
+                    <Loader2 className="mr-2 h-3 w-3 animate-spin" />
+                  ) : (
+                    <MapPin className="mr-2 h-3 w-3" />
+                  )}
                   Use Current GPS Location
                 </Button>
               </div>
