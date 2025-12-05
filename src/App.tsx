@@ -7,6 +7,7 @@ import AppLayout from "./components/layout/AppLayout";
 import Index from "./pages/Index";
 import EmergencyContacts from "./pages/EmergencyContacts";
 import ReportIssue from "./pages/ReportIssue";
+import TourismMap from "./pages/TourismMap";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -22,6 +23,7 @@ const App = () => (
             <Route path="/" element={<Index />} />
             <Route path="/emergency" element={<EmergencyContacts />} />
             <Route path="/report" element={<ReportIssue />} />
+            <Route path="/map" element={<TourismMap />} />
             {/* Placeholder for Profile */}
             <Route path="/profile" element={<div className="p-4 text-center">Profile Coming Soon</div>} />
           </Route>

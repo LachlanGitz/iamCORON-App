@@ -49,14 +49,16 @@ const Index = () => {
             </CardContent>
           </Card>
         </Link>
-        <Card className="hover:shadow-lg transition-all cursor-pointer h-full">
-          <CardContent className="p-4 flex flex-col items-center justify-center text-center space-y-2 h-full">
-            <div className="p-3 bg-green-100 rounded-full text-green-600">
-              <Map className="h-6 w-6" />
-            </div>
-            <span className="font-semibold text-sm">Tourism Map</span>
-          </CardContent>
-        </Card>
+        <Link to="/map">
+          <Card className="hover:shadow-lg transition-all cursor-pointer h-full">
+            <CardContent className="p-4 flex flex-col items-center justify-center text-center space-y-2 h-full">
+              <div className="p-3 bg-green-100 rounded-full text-green-600">
+                <Map className="h-6 w-6" />
+              </div>
+              <span className="font-semibold text-sm">Tourism Map</span>
+            </CardContent>
+          </Card>
+        </Link>
         <Card className="hover:shadow-lg transition-all cursor-pointer h-full">
           <CardContent className="p-4 flex flex-col items-center justify-center text-center space-y-2 h-full">
             <div className="p-3 bg-orange-100 rounded-full text-orange-600">
