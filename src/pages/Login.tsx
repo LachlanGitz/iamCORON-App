@@ -1,32 +1,27 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { Auth } from '@supabase/auth-ui-react';
 import { ThemeSupa } from '@supabase/auth-ui-shared';
 import { supabase } from '@/integrations/supabase/client';
 import { useNavigate } from 'react-router-dom';
-import { useEffect } from 'react';
 import { toast } from 'sonner';
 import { Logo } from '@/components/Logo';
+import { useTheme } from 'next-themes'; // Import useTheme
 
 const Login = () => {
   const navigate = useNavigate();
+  const { theme } = useTheme(); // Get current theme from next-themes
 
-  // Removed the direct navigate('/') here.
-  // The SessionContextProvider will now handle redirection after login,
-  // including checking for profile completion.
   useEffect(() => {
     const { data: authListener } = supabase.auth.onAuthStateChange((event, session) => {
-      // The SessionContextProvider will handle redirection based on session and profile status.
-      // We can optionally add a toast here for immediate feedback if needed,
-      // but the main redirection logic is centralized in SessionContextProvider.
       if (event === 'SIGNED_IN' && session) {
-        // toast.success("Logged in successfully!"); // This toast is now handled by SessionContextProvider
+        // This toast is now handled by SessionContextProvider
       }
     });
 
     return () => {
       authListener.subscription.unsubscribe();
     };
-  }, []); // No dependency on navigate here, as it's not used for direct navigation
+  }, []);
 
   return (
     <div className="min-h-screen flex flex-col items-center justify-center p-4 bg-background">
@@ -53,13 +48,14 @@ const Login = () => {
                   inputPlaceholder: 'hsl(var(--muted-foreground))',
                   messageText: 'hsl(var(--foreground))',
                   messageBackground: 'hsl(var(--background))',
-                  anchorTextColor: 'hsl(var(--secondary))',
-                  anchorTextHoverColor: 'hsl(var(--secondary-foreground))',
+                  // Adjust anchor text color for better visibility in dark mode
+                  anchorTextColor: theme === 'dark' ? 'hsl(var(--primary))' : 'hsl(var(--secondary))',
+                  anchorTextHoverColor: theme === 'dark' ? 'hsl(var(--primary-foreground))' : 'hsl(var(--secondary-foreground))',
                 },
               },
             },
           }}
-          theme="light" // Theme will be handled by next-themes, but Auth UI needs a base
+          theme={theme === 'dark' ? 'dark' : 'light'} // Dynamically set theme based on app's theme
           localization={{
             variables: {
               sign_in: {
