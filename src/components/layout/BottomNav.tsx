@@ -1,5 +1,5 @@
 import React from 'react';
-import { Home, Phone, AlertTriangle, Map } from 'lucide-react';
+import { Home, Phone, AlertTriangle, Map, LayoutGrid } from 'lucide-react';
 import { useLocation, Link } from 'react-router-dom';
 import { cn } from '@/lib/utils';
 
@@ -8,6 +8,7 @@ const BottomNav = () => {
 
   const navItems = [
     { icon: Home, label: 'Home', path: '/' },
+    { icon: LayoutGrid, label: 'Services', path: '/services' },
     { icon: Phone, label: 'Emergency', path: '/emergency' },
     { icon: AlertTriangle, label: 'Report', path: '/report' },
     { icon: Map, label: 'Map', path: '/map' },
@@ -15,9 +16,11 @@ const BottomNav = () => {
 
   return (
     <div className="fixed bottom-0 left-0 right-0 border-t bg-background/95 backdrop-blur-md z-50 pb-safe shadow-lg">
-      <div className="flex justify-around items-center h-16 max-w-md mx-auto">
+      <div className="flex justify-around items-center h-16 max-w-md mx-auto px-2">
         {navItems.map((item) => {
-          const isActive = location.pathname === item.path;
+          // Check if active, including sub-routes for services
+          const isActive = location.pathname === item.path || (item.path !== '/' && location.pathname.startsWith(item.path));
+          
           return (
             <Link
               key={item.path}

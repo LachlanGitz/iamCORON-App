@@ -8,6 +8,9 @@ import Index from "./pages/Index";
 import EmergencyContacts from "./pages/EmergencyContacts";
 import ReportIssue from "./pages/ReportIssue";
 import TourismMap from "./pages/TourismMap";
+import Services from "./pages/Services";
+import EmergencyPasundo from "./pages/EmergencyPasundo";
+import GovernmentRequirements from "./pages/GovernmentRequirements";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -21,6 +24,9 @@ const App = () => (
         <Routes>
           <Route element={<AppLayout />}>
             <Route path="/" element={<Index />} />
+            <Route path="/services" element={<Services />} />
+            <Route path="/services/pasundo" element={<EmergencyPasundo />} />
+            <Route path="/services/requirements" element={<GovernmentRequirements />} />
             <Route path="/emergency" element={<EmergencyContacts />} />
             <Route path="/report" element={<ReportIssue />} />
             <Route path="/map" element={<TourismMap />} />
