@@ -11,6 +11,9 @@ import TourismMap from "./pages/TourismMap";
 import Services from "./pages/Services";
 import EmergencyPasundo from "./pages/EmergencyPasundo";
 import GovernmentRequirements from "./pages/GovernmentRequirements";
+import FareGuide from "./pages/FareGuide";
+import JobBoard from "./pages/JobBoard";
+import PowerWaterWatch from "./pages/PowerWaterWatch";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -27,6 +30,9 @@ const App = () => (
             <Route path="/services" element={<Services />} />
             <Route path="/services/pasundo" element={<EmergencyPasundo />} />
             <Route path="/services/requirements" element={<GovernmentRequirements />} />
+            <Route path="/services/fare" element={<FareGuide />} />
+            <Route path="/services/jobs" element={<JobBoard />} />
+            <Route path="/services/utilities" element={<PowerWaterWatch />} />
             <Route path="/emergency" element={<EmergencyContacts />} />
             <Route path="/report" element={<ReportIssue />} />
             <Route path="/map" element={<TourismMap />} />
