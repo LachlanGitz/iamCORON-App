@@ -2,6 +2,7 @@ import React, { createContext, useContext, useState, useEffect } from 'react';
 import { Session, User } from '@supabase/supabase-js';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
+import { useNavigate, useLocation } from 'react-router-dom'; // Import useNavigate and useLocation
 
 interface AuthContextType {
   session: Session | null;
@@ -18,6 +19,8 @@ export const SessionContextProvider: React.FC<{ children: React.ReactNode }> = (
   const [user, setUser] = useState<User | null>(null);
   const [profile, setProfile] = useState<any | null>(null);
   const [loading, setLoading] = useState(true);
+  const navigate = useNavigate(); // Initialize useNavigate
+  const location = useLocation(); // Initialize useLocation
 
   const fetchProfile = async (userId: string) => {
     try {
@@ -31,40 +34,53 @@ export const SessionContextProvider: React.FC<{ children: React.ReactNode }> = (
         throw error;
       }
       setProfile(data);
+      return data; // Return data for immediate check
     } catch (error: any) {
       console.error('Error fetching profile:', error.message);
       toast.error('Failed to load user profile.');
+      return null;
     }
   };
 
   useEffect(() => {
-    const getSession = async () => {
-      const { data: { session } } = await supabase.auth.getSession();
-      setSession(session);
-      setUser(session?.user || null);
-      if (session?.user) {
-        await fetchProfile(session.user.id);
+    const handleAuthChange = async (event: string, currentSession: Session | null) => {
+      setSession(currentSession);
+      setUser(currentSession?.user || null);
+      setLoading(true); // Set loading true while fetching profile
+
+      if (currentSession?.user) {
+        const userProfile = await fetchProfile(currentSession.user.id);
+        // Check if profile is incomplete and redirect
+        if (userProfile && (!userProfile.first_name || !userProfile.user_type) && location.pathname !== '/settings') {
+          toast.info("Please complete your profile to continue.");
+          navigate('/settings');
+        } else if (location.pathname === '/login') {
+          // If user just logged in and profile is complete, redirect to home
+          navigate('/');
+        }
+      } else {
+        setProfile(null); // Clear profile on sign out
+        // If signed out and not on login page, redirect to login
+        if (location.pathname !== '/login') {
+          navigate('/login');
+        }
       }
       setLoading(false);
     };
 
-    getSession();
+    const getInitialSession = async () => {
+      const { data: { session } } = await supabase.auth.getSession();
+      await handleAuthChange('INITIAL_SESSION', session);
+    };
 
-    const { data: authListener } = supabase.auth.onAuthStateChange(async (_event, session) => {
-      setSession(session);
-      setUser(session?.user || null);
-      if (session?.user) {
-        await fetchProfile(session.user.id);
-      } else {
-        setProfile(null); // Clear profile on sign out
-      }
-      setLoading(false);
-    });
+    getInitialSession();
+
+    const { data: authListener } = supabase.auth.onAuthStateChange(handleAuthChange);
 
     return () => {
       authListener.subscription.unsubscribe();
     };
-  }, []);
+  }, [navigate, location.pathname]); // Add navigate and location.pathname to dependencies
 
   const refreshProfile = async () => {
     if (user) {

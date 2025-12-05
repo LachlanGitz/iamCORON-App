@@ -10,18 +10,23 @@ import { Logo } from '@/components/Logo';
 const Login = () => {
   const navigate = useNavigate();
 
+  // Removed the direct navigate('/') here.
+  // The SessionContextProvider will now handle redirection after login,
+  // including checking for profile completion.
   useEffect(() => {
     const { data: authListener } = supabase.auth.onAuthStateChange((event, session) => {
-      if (session) {
-        toast.success("Logged in successfully!");
-        navigate('/'); // Redirect to home page after login
+      // The SessionContextProvider will handle redirection based on session and profile status.
+      // We can optionally add a toast here for immediate feedback if needed,
+      // but the main redirection logic is centralized in SessionContextProvider.
+      if (event === 'SIGNED_IN' && session) {
+        // toast.success("Logged in successfully!"); // This toast is now handled by SessionContextProvider
       }
     });
 
     return () => {
       authListener.subscription.unsubscribe();
     };
-  }, [navigate]);
+  }, []); // No dependency on navigate here, as it's not used for direct navigation
 
   return (
     <div className="min-h-screen flex flex-col items-center justify-center p-4 bg-background">
