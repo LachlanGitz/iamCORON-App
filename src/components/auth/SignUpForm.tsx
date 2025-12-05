@@ -250,6 +250,9 @@ const SignUpForm = () => {
           "Sign Up"
         )}
       </Button>
+      <p className="text-xs text-muted-foreground text-center mt-4">
+        * Email confirmation is not required for this username-based system.
+      </p>
     </form>
   );
 };
