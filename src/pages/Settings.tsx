@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useTheme } from 'next-themes';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Label } from '@/components/ui/label';
-import { Switch } from '@/components/ui/switch'; // Corrected: removed 'g'
+import { Switch } from '@/components/ui/switch';
 import { Button } from '@/components/ui/button';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Input } from '@/components/ui/input';
@@ -52,6 +52,12 @@ const Settings = () => {
       setUserType(profile.user_type || '');
       setAddress(profile.address || '');
       setHotelName(profile.hotel_name || '');
+
+      // Automatically open edit mode if profile is incomplete
+      if (!profile.first_name || !profile.user_type) {
+        setIsEditingProfile(true);
+        toast.info("Please complete your profile details to continue.");
+      }
     }
   }, [profile]);
 
