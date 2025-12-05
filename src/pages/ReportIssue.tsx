@@ -10,16 +10,80 @@ import { Checkbox } from '@/components/ui/checkbox';
 import { toast } from 'sonner';
 import { MapPin, Camera, Loader2, AlertTriangle, UserX, FileSearch, LogIn, UserPlus, CalendarDays, Phone } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
-import { useAuth } from '@/components/auth/SessionContextProvider'; // Import useAuth
+import { useAuth } from '@/components/auth/SessionContextProvider';
+import { supabase } from '@/integrations/supabase/client';
+import { uploadFile } from '@/lib/supabaseStorage';
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
 
 const ReportIssue = () => {
   const [loading, setLoading] = useState(false);
   const [submitted, setSubmitted] = useState(false);
-  const [reportType, setReportType] = useState("incident"); // incident, abuse, or missing-person
-  const navigate = useNavigate();
-  const { user } = useAuth(); // Get user from auth context
+  const [reportType, setReportType] = useState("incident");
 
-  const handleSubmit = (e: React.FormEvent) => {
+  // Form states for Incident
+  const [incidentType, setIncidentType] = useState('');
+  const [incidentLocation, setIncidentLocation] = useState('');
+  const [incidentDescription, setIncidentDescription] = useState('');
+  const [incidentPhoto, setIncidentPhoto] = useState<File | null>(null);
+
+  // Form states for Abuse
+  const [abuseTargetType, setAbuseTargetType] = useState('');
+  const [abuseIdentifier, setAbuseIdentifier] = useState('');
+  const [abuseDetails, setAbuseDetails] = useState('');
+  const [isAnonymous, setIsAnonymous] = useState(false);
+  const [abuseEvidence, setAbuseEvidence] = useState<File | null>(null);
+
+  // Form states for Missing Person
+  const [missingName, setMissingName] = useState('');
+  const [lastSeenLocation, setLastSeenLocation] = useState('');
+  const [lastSeenDatetime, setLastSeenDatetime] = useState('');
+  const [missingDescription, setMissingDescription] = useState('');
+  const [reporterContact, setReporterContact] = useState('');
+  const [missingPhoto, setMissingPhoto] = useState<File | null>(null);
+
+  const [showDuplicateDialog, setShowDuplicateDialog] = useState(false);
+  const [duplicateReports, setDuplicateReports] = useState<any[]>([]);
+
+  const navigate = useNavigate();
+  const { user } = useAuth();
+
+  const resetForm = () => {
+    setIncidentType('');
+    setIncidentLocation('');
+    setIncidentDescription('');
+    setIncidentPhoto(null);
+    setAbuseTargetType('');
+    setAbuseIdentifier('');
+    setAbuseDetails('');
+    setIsAnonymous(false);
+    setAbuseEvidence(null);
+    setMissingName('');
+    setLastSeenLocation('');
+    setLastSeenDatetime('');
+    setMissingDescription('');
+    setReporterContact('');
+    setMissingPhoto(null);
+    setSubmitted(false);
+  };
+
+  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>, setter: React.Dispatch<React.SetStateAction<File | null>>) => {
+    if (e.target.files && e.target.files[0]) {
+      setter(e.target.files[0]);
+    } else {
+      setter(null);
+    }
+  };
+
+  const handleSubmit = async (e: React.FormEvent, forceSubmit: boolean = false) => {
     e.preventDefault();
     if (!user) {
       toast.error("Please log in to submit a report.");
@@ -28,14 +92,89 @@ const ReportIssue = () => {
     }
 
     setLoading(true);
-    // Simulate API call
-    setTimeout(() => {
-      setLoading(false);
+    let photoUrl: string | null = null;
+    let photoUrls: string[] = [];
+
+    try {
+      // Handle photo upload first if a file is selected
+      if (reportType === 'incident' && incidentPhoto) {
+        photoUrl = await uploadFile(incidentPhoto, user.id, 'reports');
+        photoUrls.push(photoUrl);
+      } else if (reportType === 'abuse' && abuseEvidence) {
+        photoUrl = await uploadFile(abuseEvidence, user.id, 'reports');
+        photoUrls.push(photoUrl);
+      } else if (reportType === 'missing-person' && missingPhoto) {
+        photoUrl = await uploadFile(missingPhoto, user.id, 'reports');
+        photoUrls.push(photoUrl);
+      }
+
+      let reportData: any = {
+        user_id: user.id,
+        report_type: reportType,
+        location: '',
+        description: '',
+        photo_urls: photoUrls,
+        details: {},
+      };
+
+      if (reportType === 'incident') {
+        reportData.location = incidentLocation;
+        reportData.description = incidentDescription;
+        reportData.details = { incident_type: incidentType };
+      } else if (reportType === 'abuse') {
+        reportData.location = 'N/A'; // Abuse might not have a specific location
+        reportData.description = abuseDetails;
+        reportData.details = {
+          abuse_target_type: abuseTargetType,
+          abuse_identifier: abuseIdentifier,
+          is_anonymous: isAnonymous,
+        };
+      } else if (reportType === 'missing-person') {
+        reportData.location = lastSeenLocation;
+        reportData.description = missingDescription;
+        reportData.details = {
+          missing_person_name: missingName,
+          last_seen_location: lastSeenLocation,
+          last_seen_datetime: lastSeenDatetime,
+          reporter_contact: reporterContact,
+        };
+
+        // Duplicate check for missing persons
+        if (!forceSubmit) {
+          const { data: existingReports, error: fetchError } = await supabase
+            .from('reports')
+            .select('*')
+            .eq('report_type', 'missing-person')
+            .ilike('details->>missing_person_name', `%${missingName}%`);
+
+          if (fetchError) throw fetchError;
+
+          if (existingReports && existingReports.length > 0) {
+            setDuplicateReports(existingReports);
+            setShowDuplicateDialog(true);
+            setLoading(false);
+            return; // Stop submission, wait for user decision
+          }
+        }
+      }
+
+      const { error } = await supabase.from('reports').insert([reportData]);
+
+      if (error) {
+        throw error;
+      }
+
       toast.success("Report submitted successfully!", {
         description: `Reference Ticket: #CRN-2024-${Math.floor(Math.random() * 9000 + 1000)}`
       });
       setSubmitted(true);
-    }, 2000);
+      resetForm();
+    } catch (error: any) {
+      console.error("Report submission error:", error.message);
+      toast.error("Report submission failed", { description: error.message });
+    } finally {
+      setLoading(false);
+    }
   };
 
   if (submitted) {
@@ -52,7 +191,7 @@ const ReportIssue = () => {
         </p>
         <div className="flex flex-col gap-2 w-full max-w-xs mt-4">
             <Button onClick={() => navigate('/report/status')} variant="outline" className="w-full">Track Status</Button>
-            <Button onClick={() => setSubmitted(false)} className="w-full">Submit Another Report</Button>
+            <Button onClick={() => resetForm()} className="w-full">Submit Another Report</Button>
         </div>
       </div>
     );
@@ -93,7 +232,7 @@ const ReportIssue = () => {
               <form onSubmit={handleSubmit} className="space-y-4">
                 <div className="space-y-2">
                   <Label htmlFor="incident-type">Incident Type</Label>
-                  <Select required disabled={!user}>
+                  <Select required disabled={!user} value={incidentType} onValueChange={setIncidentType}>
                     <SelectTrigger id="incident-type">
                       <SelectValue placeholder="Select category" />
                     </SelectTrigger>
@@ -113,7 +252,7 @@ const ReportIssue = () => {
                   <Label htmlFor="location">Location</Label>
                   <div className="relative">
                     <MapPin className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
-                    <Input id="location" placeholder="Nearest Landmark / Street" className="pl-9" required disabled={!user} />
+                    <Input id="location" placeholder="Nearest Landmark / Street" className="pl-9" required disabled={!user} value={incidentLocation} onChange={(e) => setIncidentLocation(e.target.value)} />
                   </div>
                   <Button type="button" variant="outline" size="sm" className="w-full text-xs" onClick={() => toast.info("Getting GPS location...")} disabled={!user}>
                     <MapPin className="mr-2 h-3 w-3" />
@@ -123,21 +262,28 @@ const ReportIssue = () => {
 
                 <div className="space-y-2">
                   <Label htmlFor="description">Description</Label>
-                  <Textarea 
-                    id="description" 
-                    placeholder="Describe the incident details..." 
+                  <Textarea
+                    id="description"
+                    placeholder="Describe the incident details..."
                     className="min-h-[100px]"
-                    required 
+                    required
                     disabled={!user}
+                    value={incidentDescription}
+                    onChange={(e) => setIncidentDescription(e.target.value)}
                   />
                 </div>
 
                 <div className="space-y-2">
                   <Label>Photo Evidence (Optional)</Label>
-                  <div className="border-2 border-dashed rounded-lg p-6 flex flex-col items-center justify-center text-muted-foreground hover:bg-muted/50 transition-colors cursor-pointer" onClick={() => !user && toast.error("Please log in to upload photos.")}>
-                    <Camera className="h-8 w-8 mb-2" />
-                    <span className="text-xs">Tap to take a photo or upload</span>
-                  </div>
+                  <Input
+                    id="incident-photo"
+                    type="file"
+                    accept="image/*"
+                    className="cursor-pointer"
+                    disabled={!user}
+                    onChange={(e) => handleFileChange(e, setIncidentPhoto)}
+                  />
+                  {incidentPhoto && <p className="text-xs text-muted-foreground">Selected: {incidentPhoto.name}</p>}
                 </div>
 
                 {!user && (
@@ -172,7 +318,7 @@ const ReportIssue = () => {
 
                 <div className="space-y-2">
                   <Label htmlFor="abuse-type">Report Against</Label>
-                  <Select required disabled={!user}>
+                  <Select required disabled={!user} value={abuseTargetType} onValueChange={setAbuseTargetType}>
                     <SelectTrigger id="abuse-type">
                       <SelectValue placeholder="Select offender type" />
                     </SelectTrigger>
@@ -187,28 +333,32 @@ const ReportIssue = () => {
 
                 <div className="space-y-2">
                   <Label htmlFor="identity">Name / Body Number / Identifier</Label>
-                  <Input 
-                    id="identity" 
-                    placeholder="e.g., Body #1234 or Name of Person" 
-                    required 
+                  <Input
+                    id="identity"
+                    placeholder="e.g., Body #1234 or Name of Person"
+                    required
                     disabled={!user}
+                    value={abuseIdentifier}
+                    onChange={(e) => setAbuseIdentifier(e.target.value)}
                   />
                   <p className="text-[10px] text-muted-foreground">For tricycles, please include Body Number or Plate Number.</p>
                 </div>
 
                 <div className="space-y-2">
                   <Label htmlFor="abuse-details">Details of Abuse</Label>
-                  <Textarea 
-                    id="abuse-details" 
-                    placeholder="Please describe what happened, when, and where..." 
+                  <Textarea
+                    id="abuse-details"
+                    placeholder="Please describe what happened, when, and where..."
                     className="min-h-[100px]"
-                    required 
+                    required
                     disabled={!user}
+                    value={abuseDetails}
+                    onChange={(e) => setAbuseDetails(e.target.value)}
                   />
                 </div>
 
                 <div className="flex items-center space-x-2 py-2">
-                  <Checkbox id="anonymous" disabled={!user} />
+                  <Checkbox id="anonymous" disabled={!user} checked={isAnonymous} onCheckedChange={(checked) => setIsAnonymous(checked as boolean)} />
                   <Label htmlFor="anonymous" className="text-sm font-normal cursor-pointer">
                     Submit anonymously
                   </Label>
@@ -216,10 +366,15 @@ const ReportIssue = () => {
 
                 <div className="space-y-2">
                   <Label>Evidence (Photo/Video/Audio)</Label>
-                  <div className="border-2 border-dashed rounded-lg p-6 flex flex-col items-center justify-center text-muted-foreground hover:bg-muted/50 transition-colors cursor-pointer" onClick={() => !user && toast.error("Please log in to upload evidence.")}>
-                    <Camera className="h-8 w-8 mb-2" />
-                    <span className="text-xs">Tap to upload evidence</span>
-                  </div>
+                  <Input
+                    id="abuse-evidence"
+                    type="file"
+                    accept="image/*,video/*,audio/*"
+                    className="cursor-pointer"
+                    disabled={!user}
+                    onChange={(e) => handleFileChange(e, setAbuseEvidence)}
+                  />
+                  {abuseEvidence && <p className="text-xs text-muted-foreground">Selected: {abuseEvidence.name}</p>}
                 </div>
 
                 {!user && (
@@ -254,14 +409,14 @@ const ReportIssue = () => {
 
                 <div className="space-y-2">
                   <Label htmlFor="missing-name">Full Name of Missing Person</Label>
-                  <Input id="missing-name" placeholder="First Name, Last Name" required disabled={!user} />
+                  <Input id="missing-name" placeholder="First Name, Last Name" required disabled={!user} value={missingName} onChange={(e) => setMissingName(e.target.value)} />
                 </div>
 
                 <div className="space-y-2">
                   <Label htmlFor="last-seen-location">Last Known Location</Label>
                   <div className="relative">
                     <MapPin className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
-                    <Input id="last-seen-location" placeholder="e.g., Coron Public Market" className="pl-9" required disabled={!user} />
+                    <Input id="last-seen-location" placeholder="e.g., Coron Public Market" className="pl-9" required disabled={!user} value={lastSeenLocation} onChange={(e) => setLastSeenLocation(e.target.value)} />
                   </div>
                   <Button type="button" variant="outline" size="sm" className="w-full text-xs" onClick={() => toast.info("Getting GPS location...")} disabled={!user}>
                     <MapPin className="mr-2 h-3 w-3" />
@@ -273,18 +428,20 @@ const ReportIssue = () => {
                   <Label htmlFor="last-seen-datetime">Last Seen Date & Time</Label>
                   <div className="relative">
                     <CalendarDays className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
-                    <Input id="last-seen-datetime" type="datetime-local" className="pl-9" required disabled={!user} />
+                    <Input id="last-seen-datetime" type="datetime-local" className="pl-9" required disabled={!user} value={lastSeenDatetime} onChange={(e) => setLastSeenDatetime(e.target.value)} />
                   </div>
                 </div>
 
                 <div className="space-y-2">
                   <Label htmlFor="description-missing">Description (Appearance, Clothing, etc.)</Label>
-                  <Textarea 
-                    id="description-missing" 
-                    placeholder="Height, build, hair color, last worn clothes, distinguishing marks..." 
+                  <Textarea
+                    id="description-missing"
+                    placeholder="Height, build, hair color, last worn clothes, distinguishing marks..."
                     className="min-h-[100px]"
-                    required 
+                    required
                     disabled={!user}
+                    value={missingDescription}
+                    onChange={(e) => setMissingDescription(e.target.value)}
                   />
                 </div>
 
@@ -292,16 +449,21 @@ const ReportIssue = () => {
                   <Label htmlFor="reporter-contact">Your Contact Number</Label>
                   <div className="relative">
                     <Phone className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
-                    <Input id="reporter-contact" type="tel" placeholder="09XX XXX XXXX" className="pl-9" required disabled={!user} />
+                    <Input id="reporter-contact" type="tel" placeholder="09XX XXX XXXX" className="pl-9" required disabled={!user} value={reporterContact} onChange={(e) => setReporterContact(e.target.value)} />
                   </div>
                 </div>
 
                 <div className="space-y-2">
                   <Label>Photo of Missing Person (Optional but Recommended)</Label>
-                  <div className="border-2 border-dashed rounded-lg p-6 flex flex-col items-center justify-center text-muted-foreground hover:bg-muted/50 transition-colors cursor-pointer" onClick={() => !user && toast.error("Please log in to upload photos.")}>
-                    <Camera className="h-8 w-8 mb-2" />
-                    <span className="text-xs">Tap to upload photo</span>
-                  </div>
+                  <Input
+                    id="missing-photo"
+                    type="file"
+                    accept="image/*"
+                    className="cursor-pointer"
+                    disabled={!user}
+                    onChange={(e) => handleFileChange(e, setMissingPhoto)}
+                  />
+                  {missingPhoto && <p className="text-xs text-muted-foreground">Selected: {missingPhoto.name}</p>}
                 </div>
 
                 {!user && (
@@ -324,6 +486,33 @@ const ReportIssue = () => {
           </Card>
         </TabsContent>
       </Tabs>
+
+      {/* Duplicate Report Confirmation Dialog */}
+      <AlertDialog open={showDuplicateDialog} onOpenChange={setShowDuplicateDialog}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Potential Duplicate Report</AlertDialogTitle>
+            <AlertDialogDescription>
+              A report for "{missingName}" might already exist.
+              <div className="mt-4 space-y-2 max-h-48 overflow-y-auto">
+                {duplicateReports.map((report) => (
+                  <Card key={report.id} className="p-3 text-xs">
+                    <p className="font-semibold">{report.details?.missing_person_name}</p>
+                    <p className="text-muted-foreground">Last seen: {report.location} on {new Date(report.details?.last_seen_datetime).toLocaleDateString()}</p>
+                    <p className="text-muted-foreground">Status: {report.status}</p>
+                    <Button variant="link" size="sm" className="h-auto px-0 text-xs" onClick={() => navigate(`/report/status?ticketId=${report.id}`)}>View Existing Report</Button>
+                  </Card>
+                ))}
+              </div>
+              <p className="mt-4">Do you still want to submit this as a new report?</p>
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel onClick={() => setLoading(false)}>Cancel</AlertDialogCancel>
+            <AlertDialogAction onClick={(e) => handleSubmit(e as any, true)}>Submit as New</AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
 };
