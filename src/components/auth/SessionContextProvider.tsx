@@ -50,7 +50,7 @@ export const SessionContextProvider: React.FC<{ children: React.ReactNode }> = (
 
       if (currentSession?.user) {
         const userProfile = await fetchProfile(currentSession.user.id);
-        // Check if profile is incomplete and redirect
+        // Check if profile is incomplete and redirect to settings
         if (userProfile && (!userProfile.first_name || !userProfile.user_type) && location.pathname !== '/settings') {
           toast.info("Please complete your profile details to continue.");
           navigate('/settings');
@@ -60,8 +60,10 @@ export const SessionContextProvider: React.FC<{ children: React.ReactNode }> = (
         }
       } else {
         setProfile(null); // Clear profile on sign out
-        // If signed out and not on login page, redirect to login
-        if (location.pathname !== '/login') {
+        // If signed out and trying to access a protected route, redirect to login
+        const protectedRoutes = ['/settings']; // Define routes that require authentication
+        if (protectedRoutes.includes(location.pathname)) {
+          toast.info("Please log in to access this page.");
           navigate('/login');
         }
       }
