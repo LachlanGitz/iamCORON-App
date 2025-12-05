@@ -8,6 +8,7 @@ import AppLayout from "./components/layout/AppLayout";
 import Index from "./pages/Index";
 import EmergencyContacts from "./pages/EmergencyContacts";
 import ReportIssue from "./pages/ReportIssue";
+import ReportStatus from "./pages/ReportStatus";
 import TourismMap from "./pages/TourismMap";
 import Services from "./pages/Services";
 import EmergencyPasundo from "./pages/EmergencyPasundo";
@@ -40,6 +41,7 @@ const App = () => (
               <Route path="/services/private" element={<PrivateServices />} />
               <Route path="/emergency" element={<EmergencyContacts />} />
               <Route path="/report" element={<ReportIssue />} />
+              <Route path="/report/status" element={<ReportStatus />} />
               <Route path="/map" element={<TourismMap />} />
               <Route path="/settings" element={<Settings />} />
               {/* Fallback for profile to settings */}

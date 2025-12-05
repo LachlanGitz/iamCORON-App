@@ -8,12 +8,14 @@ import { Label } from '@/components/ui/label';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Checkbox } from '@/components/ui/checkbox';
 import { toast } from 'sonner';
-import { MapPin, Camera, Loader2, AlertTriangle, UserX } from 'lucide-react';
+import { MapPin, Camera, Loader2, AlertTriangle, UserX, FileSearch } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
 
 const ReportIssue = () => {
   const [loading, setLoading] = useState(false);
   const [submitted, setSubmitted] = useState(false);
   const [reportType, setReportType] = useState("incident"); // incident or abuse
+  const navigate = useNavigate();
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -40,16 +42,24 @@ const ReportIssue = () => {
         <p className="text-muted-foreground max-w-xs">
           Thank you. Your report has been securely transmitted to the proper authorities for action.
         </p>
-        <Button onClick={() => setSubmitted(false)} className="mt-4">Submit Another Report</Button>
+        <div className="flex flex-col gap-2 w-full max-w-xs mt-4">
+            <Button onClick={() => navigate('/report/status')} variant="outline" className="w-full">Track Status</Button>
+            <Button onClick={() => setSubmitted(false)} className="w-full">Submit Another Report</Button>
+        </div>
       </div>
     );
   }
 
   return (
-    <div className="space-y-6">
-      <div className="space-y-2">
-        <h2 className="text-2xl font-bold tracking-tight">Submit a Report</h2>
-        <p className="text-muted-foreground">Choose the type of report you wish to file.</p>
+    <div className="space-y-6 pb-20">
+      <div className="flex items-start justify-between">
+        <div className="space-y-2">
+            <h2 className="text-2xl font-bold tracking-tight">Submit a Report</h2>
+            <p className="text-muted-foreground">Choose the type of report you wish to file.</p>
+        </div>
+        <Button size="icon" variant="outline" onClick={() => navigate('/report/status')} title="Track Report Status">
+            <FileSearch className="h-5 w-5" />
+        </Button>
       </div>
 
       <Tabs defaultValue="incident" className="w-full" onValueChange={setReportType}>
