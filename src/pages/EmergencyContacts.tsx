@@ -53,6 +53,7 @@ const EmergencyContacts = () => {
           <CardContent className="grid gap-3">
             <ContactItem icon={HeartPulse} title="Coron District Hospital" number="0917-123-4567" color="bg-rose-600" />
             <ContactItem icon={HeartPulse} title="Rural Health Unit" number="0918-987-6543" color="bg-rose-500" />
+            <ContactItem icon={HeartPulse} title="Red Cross Palawan" number="(048) 433-2826" color="bg-rose-700" />
           </CardContent>
         </Card>
 
@@ -64,8 +65,8 @@ const EmergencyContacts = () => {
             </CardTitle>
           </CardHeader>
           <CardContent className="grid gap-3">
-            <ContactItem icon={Zap} title="BISELCO (Electricity)" number="0919-123-4567" color="bg-yellow-600" />
-            <ContactItem icon={Droplets} title="Coron Water District" number="(048) 550-1234" color="bg-cyan-600" />
+            <ContactItem icon={Zap} title="BISELCO (Electricity)" number="0917-553-1579" color="bg-yellow-600" />
+            <ContactItem icon={Droplets} title="Coron Water District" number="(048) 550-9588" color="bg-cyan-600" />
           </CardContent>
         </Card>
       </div>

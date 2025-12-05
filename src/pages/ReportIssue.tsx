@@ -28,6 +28,78 @@ const ReportIssue = () => {
   const [loading, setLoading] = useState(false);
   const [submitted, setSubmitted] = useState(false);
   const [reportType, setReportType] = useState("incident");
+  const [isFetchingLocation, setIsFetchingLocation] = useState(false);
+
+  const OPENCAGE_API_KEY = import.meta.env.VITE_OPENCAGE_API_KEY;
+
+  const handleGetGPSLocation = () => {
+    setIsFetchingLocation(true);
+    toast.loading("Fetching your current location...", { id: 'location-toast' });
+
+    if (navigator.geolocation) {
+      navigator.geolocation.getCurrentPosition(
+        async (position) => {
+          const { latitude, longitude } = position.coords;
+
+          // If we have an API key, try to get the address
+          if (OPENCAGE_API_KEY && OPENCAGE_API_KEY !== 'YOUR_OPENCAGE_API_KEY_HERE') {
+            try {
+              const response = await fetch(
+                `https://api.opencagedata.com/geocode/v1/json?q=${latitude}+${longitude}&key=${OPENCAGE_API_KEY}`
+              );
+              const data = await response.json();
+
+              if (data.results && data.results.length > 0) {
+                const formattedAddress = data.results[0].formatted;
+                if (reportType === 'incident') setIncidentLocation(formattedAddress);
+                else if (reportType === 'missing-person') setLastSeenLocation(formattedAddress);
+
+                toast.success("Location fetched!", {
+                  description: "Address has been updated.",
+                  id: 'location-toast'
+                });
+              } else {
+                // Fallback to coordinates
+                const coordString = `Lat: ${latitude}, Long: ${longitude}`;
+                if (reportType === 'incident') setIncidentLocation(coordString);
+                else if (reportType === 'missing-person') setLastSeenLocation(coordString);
+                toast.success("Location fetched!", { description: "Using coordinates.", id: 'location-toast' });
+              }
+            } catch (error) {
+              console.error("Error during reverse geocoding:", error);
+              const coordString = `Lat: ${latitude}, Long: ${longitude}`;
+              if (reportType === 'incident') setIncidentLocation(coordString);
+              else if (reportType === 'missing-person') setLastSeenLocation(coordString);
+              toast.error("Failed to get address. Using coordinates.", { id: 'location-toast' });
+            }
+          } else {
+            // No API key, just use coordinates
+            const coordString = `Lat: ${latitude}, Long: ${longitude}`;
+            if (reportType === 'incident') setIncidentLocation(coordString);
+            else if (reportType === 'missing-person') setLastSeenLocation(coordString);
+            toast.success("Location fetched!", {
+              description: "Coordinates updated. Configure OpenCage for addresses.",
+              id: 'location-toast'
+            });
+          }
+          setIsFetchingLocation(false);
+        },
+        (error) => {
+          console.error("Geolocation error:", error);
+          toast.error("Failed to get GPS location.", {
+            description: error.message,
+            id: 'location-toast'
+          });
+          setIsFetchingLocation(false);
+        },
+        { enableHighAccuracy: true, timeout: 10000, maximumAge: 0 }
+      );
+    } else {
+      toast.error("Geolocation is not supported by your browser.", { id: 'location-toast' });
+      setIsFetchingLocation(false);
+    }
+  };
+
 
   // Form states for Incident
   const [incidentType, setIncidentType] = useState('');
@@ -190,8 +262,8 @@ const ReportIssue = () => {
           Thank you. Your report has been securely transmitted to the proper authorities for action.
         </p>
         <div className="flex flex-col gap-2 w-full max-w-xs mt-4">
-            <Button onClick={() => navigate('/report/status')} variant="outline" className="w-full">Track Status</Button>
-            <Button onClick={() => resetForm()} className="w-full">Submit Another Report</Button>
+          <Button onClick={() => navigate('/report/status')} variant="outline" className="w-full">Track Status</Button>
+          <Button onClick={() => resetForm()} className="w-full">Submit Another Report</Button>
         </div>
       </div>
     );
@@ -201,11 +273,11 @@ const ReportIssue = () => {
     <div className="space-y-6 pb-20">
       <div className="flex items-start justify-between">
         <div className="space-y-2">
-            <h2 className="text-2xl font-bold tracking-tight">Submit a Report</h2>
-            <p className="text-muted-foreground">Choose the type of report you wish to file.</p>
+          <h2 className="text-2xl font-bold tracking-tight">Submit a Report</h2>
+          <p className="text-muted-foreground">Choose the type of report you wish to file.</p>
         </div>
         <Button size="icon" variant="outline" onClick={() => navigate('/report/status')} title="Track Report Status">
-            <FileSearch className="h-5 w-5" />
+          <FileSearch className="h-5 w-5" />
         </Button>
       </div>
 
@@ -254,8 +326,12 @@ const ReportIssue = () => {
                     <MapPin className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
                     <Input id="location" placeholder="Nearest Landmark / Street" className="pl-9" required disabled={!user} value={incidentLocation} onChange={(e) => setIncidentLocation(e.target.value)} />
                   </div>
-                  <Button type="button" variant="outline" size="sm" className="w-full text-xs" onClick={() => toast.info("Getting GPS location...")} disabled={!user}>
-                    <MapPin className="mr-2 h-3 w-3" />
+                  <Button type="button" variant="outline" size="sm" className="w-full text-xs" onClick={handleGetGPSLocation} disabled={!user || isFetchingLocation}>
+                    {isFetchingLocation ? (
+                      <Loader2 className="mr-2 h-3 w-3 animate-spin" />
+                    ) : (
+                      <MapPin className="mr-2 h-3 w-3" />
+                    )}
                     Use Current GPS Location
                   </Button>
                 </div>
@@ -418,8 +494,12 @@ const ReportIssue = () => {
                     <MapPin className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
                     <Input id="last-seen-location" placeholder="e.g., Coron Public Market" className="pl-9" required disabled={!user} value={lastSeenLocation} onChange={(e) => setLastSeenLocation(e.target.value)} />
                   </div>
-                  <Button type="button" variant="outline" size="sm" className="w-full text-xs" onClick={() => toast.info("Getting GPS location...")} disabled={!user}>
-                    <MapPin className="mr-2 h-3 w-3" />
+                  <Button type="button" variant="outline" size="sm" className="w-full text-xs" onClick={handleGetGPSLocation} disabled={!user || isFetchingLocation}>
+                    {isFetchingLocation ? (
+                      <Loader2 className="mr-2 h-3 w-3 animate-spin" />
+                    ) : (
+                      <MapPin className="mr-2 h-3 w-3" />
+                    )}
                     Use Current GPS Location
                   </Button>
                 </div>

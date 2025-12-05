@@ -8,14 +8,14 @@ import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Textarea } from '@/components/ui/textarea';
-import { 
-  User, 
-  Moon, 
-  Sun, 
-  Bell, 
-  Shield, 
-  LogOut, 
-  Globe, 
+import {
+  User,
+  Moon,
+  Sun,
+  Bell,
+  Shield,
+  LogOut,
+  Globe,
   Smartphone,
   ChevronRight,
   Laptop,
@@ -208,9 +208,9 @@ const Settings = () => {
             {profile?.username ? `@${profile.username}` : 'Username not set'}
           </p>
           <p className="text-xs text-gray-500 dark:text-gray-400">
-            {profile?.user_type === 'resident' ? `Resident • ${profile?.address || 'Address not set'}` : 
-             profile?.user_type === 'tourist' ? `Tourist • ${profile?.hotel_name || 'Hotel not set'}` :
-             'User Type not set'}
+            {profile?.user_type === 'resident' ? `Resident • ${profile?.address || 'Address not set'}` :
+              profile?.user_type === 'tourist' ? `Tourist • ${profile?.hotel_name || 'Hotel not set'}` :
+                'User Type not set'}
           </p>
           <Button variant="link" className="px-0 h-auto text-xs text-primary" onClick={() => setIsEditingProfile(true)}>Edit Profile</Button>
         </div>
@@ -257,11 +257,11 @@ const Settings = () => {
                   <Home className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
                   <Textarea id="address" placeholder="House No., Street, Barangay, Town" className="pl-9 min-h-[80px]" value={address} onChange={(e) => setAddress(e.target.value)} />
                 </div>
-                <Button 
-                  type="button" 
-                  variant="outline" 
-                  size="sm" 
-                  className="w-full text-xs" 
+                <Button
+                  type="button"
+                  variant="outline"
+                  size="sm"
+                  className="w-full text-xs"
                   onClick={handleGetGPSLocation}
                   disabled={isFetchingLocation}
                 >
@@ -311,22 +311,22 @@ const Settings = () => {
           <div className="space-y-3">
             <Label className="text-base">Theme</Label>
             <div className="grid grid-cols-3 gap-2">
-              <Button 
-                variant={theme === 'light' ? "default" : "outline"} 
+              <Button
+                variant={theme === 'light' ? "default" : "outline"}
                 className="flex gap-2"
                 onClick={() => setTheme('light')}
               >
                 <Sun className="h-4 w-4" /> Light
               </Button>
-              <Button 
-                variant={theme === 'dark' ? "default" : "outline"} 
+              <Button
+                variant={theme === 'dark' ? "default" : "outline"}
                 className="flex gap-2"
                 onClick={() => setTheme('dark')}
               >
                 <Moon className="h-4 w-4" /> Dark
               </Button>
-              <Button 
-                variant={theme === 'system' ? "default" : "outline"} 
+              <Button
+                variant={theme === 'system' ? "default" : "outline"}
                 className="flex gap-2"
                 onClick={() => setTheme('system')}
               >
@@ -385,16 +385,16 @@ const Settings = () => {
             <span className="flex items-center gap-2"><Smartphone className="h-4 w-4" /> Offline Data</span>
             <ChevronRight className="h-4 w-4 text-muted-foreground" />
           </Button>
-          <Button variant="ghost" className="w-full justify-between font-normal h-12">
+          <Button variant="ghost" className="w-full justify-between font-normal h-12" onClick={() => navigate('/privacy')}>
             <span className="flex items-center gap-2"><Shield className="h-4 w-4" /> Privacy Policy</span>
             <ChevronRight className="h-4 w-4 text-muted-foreground" />
           </Button>
         </CardContent>
       </Card>
 
-      <Button 
-        variant="destructive" 
-        className="w-full" 
+      <Button
+        variant="destructive"
+        className="w-full"
         onClick={handleLogout}
       >
         <LogOut className="mr-2 h-4 w-4" /> Log Out

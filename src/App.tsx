@@ -19,7 +19,8 @@ import PowerWaterWatch from "./pages/PowerWaterWatch";
 import PrivateServices from "./pages/PrivateServices";
 import Settings from "./pages/Settings";
 import NotFound from "./pages/NotFound";
-import Login from "./pages/Login"; // Import the new Login page
+import Login from "./pages/Login";
+import PrivacyPolicy from "./pages/PrivacyPolicy";
 
 const queryClient = new QueryClient();
 
@@ -30,27 +31,28 @@ const App = () => (
         <Toaster />
         <Sonner position="top-center" />
         {/* BrowserRouter is now in main.tsx */}
-          <Routes>
-            <Route element={<AppLayout />}>
-              <Route path="/" element={<Index />} />
-              <Route path="/services" element={<Services />} />
-              <Route path="/services/pasundo" element={<EmergencyPasundo />} />
-              <Route path="/services/requirements" element={<GovernmentRequirements />} />
-              <Route path="/services/fare" element={<FareGuide />} />
-              <Route path="/services/jobs" element={<JobBoard />} />
-              <Route path="/services/utilities" element={<PowerWaterWatch />} />
-              <Route path="/services/private" element={<PrivateServices />} />
-              <Route path="/emergency" element={<EmergencyContacts />} />
-              <Route path="/report" element={<ReportIssue />} />
-              <Route path="/report/status" element={<ReportStatus />} />
-              <Route path="/map" element={<TourismMap />} />
-              <Route path="/settings" element={<Settings />} />
-              {/* Fallback for profile to settings */}
-              <Route path="/profile" element={<Settings />} />
-            </Route>
-            <Route path="/login" element={<Login />} /> {/* Add the new Login route */}
-            <Route path="*" element={<NotFound />} />
-          </Routes>
+        <Routes>
+          <Route element={<AppLayout />}>
+            <Route path="/" element={<Index />} />
+            <Route path="/services" element={<Services />} />
+            <Route path="/services/pasundo" element={<EmergencyPasundo />} />
+            <Route path="/services/requirements" element={<GovernmentRequirements />} />
+            <Route path="/services/fare" element={<FareGuide />} />
+            <Route path="/services/jobs" element={<JobBoard />} />
+            <Route path="/services/utilities" element={<PowerWaterWatch />} />
+            <Route path="/services/private" element={<PrivateServices />} />
+            <Route path="/emergency" element={<EmergencyContacts />} />
+            <Route path="/report" element={<ReportIssue />} />
+            <Route path="/report/status" element={<ReportStatus />} />
+            <Route path="/map" element={<TourismMap />} />
+            <Route path="/settings" element={<Settings />} />
+            {/* Fallback for profile to settings */}
+            <Route path="/profile" element={<Settings />} />
+            <Route path="/privacy" element={<PrivacyPolicy />} />
+          </Route>
+          <Route path="/login" element={<Login />} /> {/* Add the new Login route */}
+          <Route path="*" element={<NotFound />} />
+        </Routes>
       </TooltipProvider>
     </ThemeProvider>
   </QueryClientProvider>
