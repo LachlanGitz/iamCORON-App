@@ -6,7 +6,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Textarea } from '@/components/ui/textarea';
-import { Loader2, MapPin, Home, Hotel, Mail, Lock, User as UserIcon } from 'lucide-react';
+import { Loader2, MapPin, Home, Hotel, Lock, User as UserIcon } from 'lucide-react';
 import { toast } from 'sonner';
 import { supabase } from '@/integrations/supabase/client';
 import { useNavigate } from 'react-router-dom';
@@ -14,7 +14,7 @@ import { useNavigate } from 'react-router-dom';
 const OPENCAGE_API_KEY = import.meta.env.VITE_OPENCAGE_API_KEY;
 
 const SignUpForm = () => {
-  const [email, setEmail] = useState('');
+  const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
   const [firstName, setFirstName] = useState('');
   const [lastName, setLastName] = useState('');
@@ -84,9 +84,12 @@ const SignUpForm = () => {
     setLoading(true);
 
     try {
-      // 1. Sign up the user with email and password
+      // Generate a dummy email for Supabase Auth
+      const internalEmail = `${username}@yourdomain.com`;
+
+      // 1. Sign up the user with the generated email and password
       const { data: authData, error: authError } = await supabase.auth.signUp({
-        email,
+        email: internalEmail,
         password,
         options: {
           data: {
@@ -101,9 +104,10 @@ const SignUpForm = () => {
       }
 
       if (authData.user) {
-        // 2. Insert additional profile data into public.profiles
+        // 2. Insert additional profile data into public.profiles, including the username
         const { error: profileError } = await supabase.from('profiles').upsert({
           id: authData.user.id,
+          username: username, // Store the actual username
           first_name: firstName,
           last_name: lastName,
           user_type: userType,
@@ -112,15 +116,15 @@ const SignUpForm = () => {
         });
 
         if (profileError) {
-          // If profile insertion fails, consider rolling back user or logging for admin
           console.error("Error inserting profile data:", profileError.message);
           toast.error("Registration successful, but failed to save profile details. Please update in settings.", { duration: 5000 });
         } else {
-          toast.success("Registration successful! Please check your email to confirm your account.");
+          toast.success("Registration successful! You can now sign in with your username.");
         }
         navigate('/'); // Redirect to home or a confirmation page
       } else {
-        toast.info("Please check your email to complete registration.");
+        // This case might happen if email confirmation is required but no email is sent
+        toast.info("Registration initiated. If email confirmation is enabled, please check your email.");
       }
     } catch (error: any) {
       console.error("Sign up error:", error.message);
@@ -133,16 +137,16 @@ const SignUpForm = () => {
   return (
     <form onSubmit={handleSignUp} className="space-y-4">
       <div className="space-y-2">
-        <Label htmlFor="email">Email</Label>
+        <Label htmlFor="username">Username</Label>
         <div className="relative">
-          <Mail className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
+          <UserIcon className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
           <Input
-            id="email"
-            type="email"
-            placeholder="your@example.com"
+            id="username"
+            type="text"
+            placeholder="yourusername"
             className="pl-9"
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
+            value={username}
+            onChange={(e) => setUsername(e.target.value)}
             required
           />
         </div>

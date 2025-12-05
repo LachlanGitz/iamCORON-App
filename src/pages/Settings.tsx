@@ -36,6 +36,7 @@ const Settings = () => {
   const { user, profile, loading, fetchProfile } = useAuth();
   const navigate = useNavigate();
 
+  const [username, setUsername] = useState(profile?.username || '');
   const [firstName, setFirstName] = useState(profile?.first_name || '');
   const [lastName, setLastName] = useState(profile?.last_name || '');
   const [userType, setUserType] = useState(profile?.user_type || '');
@@ -47,6 +48,7 @@ const Settings = () => {
 
   useEffect(() => {
     if (profile) {
+      setUsername(profile.username || '');
       setFirstName(profile.first_name || '');
       setLastName(profile.last_name || '');
       setUserType(profile.user_type || '');
@@ -80,6 +82,7 @@ const Settings = () => {
     try {
       const updates = {
         id: user.id,
+        username: username, // Include username in updates
         first_name: firstName,
         last_name: lastName,
         user_type: userType,
@@ -202,6 +205,9 @@ const Settings = () => {
             {profile?.first_name || 'Guest'} {profile?.last_name || 'User'}
           </h3>
           <p className="text-sm text-gray-500 dark:text-gray-400">
+            {profile?.username ? `@${profile.username}` : 'Username not set'}
+          </p>
+          <p className="text-xs text-gray-500 dark:text-gray-400">
             {profile?.user_type === 'resident' ? `Resident • ${profile?.address || 'Address not set'}` : 
              profile?.user_type === 'tourist' ? `Tourist • ${profile?.hotel_name || 'Hotel not set'}` :
              'User Type not set'}
@@ -218,6 +224,10 @@ const Settings = () => {
             </CardTitle>
           </CardHeader>
           <CardContent className="space-y-4">
+            <div className="space-y-2">
+              <Label htmlFor="username">Username</Label>
+              <Input id="username" value={username} onChange={(e) => setUsername(e.target.value)} />
+            </div>
             <div className="grid grid-cols-2 gap-4">
               <div className="space-y-2">
                 <Label htmlFor="firstName">First Name</Label>
