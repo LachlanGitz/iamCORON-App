@@ -4,7 +4,7 @@ import React, { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { Loader2, Mail, Lock, User as UserIcon } from 'lucide-react';
+import { Loader2, Lock, User as UserIcon } from 'lucide-react'; // Removed Mail icon as email is internal
 import { toast } from 'sonner';
 import { supabase } from '@/integrations/supabase/client';
 import { useNavigate } from 'react-router-dom';
@@ -20,19 +20,14 @@ const SignInForm = () => {
     setLoading(true);
 
     try {
-      // 1. Find the user's internal email based on the provided username
-      const { data: profileData, error: profileError } = await supabase
-        .from('profiles')
-        .select('id, username')
-        .eq('username', username)
-        .single();
+      // 1. Call RPC to get the internal email based on the provided username
+      const { data: internalEmail, error: rpcError } = await supabase.rpc('get_internal_email_by_username', {
+        p_username: username,
+      });
 
-      if (profileError || !profileData) {
-        throw new Error('Invalid username or password.');
+      if (rpcError || !internalEmail) {
+        throw new Error('Invalid username or password.'); // Generic error for security
       }
-
-      // Construct the internal email used by Supabase Auth
-      const internalEmail = `${profileData.username}@yourdomain.com`; // Consistent with SignUpForm
 
       // 2. Sign in using the internal email and provided password
       const { error: authError } = await supabase.auth.signInWithPassword({
