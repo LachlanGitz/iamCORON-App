@@ -149,19 +149,19 @@ const TourismMap = () => {
         <p className="text-muted-foreground">Discover the best of Coron.</p>
       </div>
 
-      <div className="sticky top-[4.5rem] z-30 bg-gray-50/95 backdrop-blur py-2 -mx-4 px-4 space-y-2">
+      <div className="sticky top-[4.5rem] z-30 bg-background/95 backdrop-blur py-2 -mx-4 px-4 space-y-2">
         <Input 
           placeholder="Search places..." 
-          className="bg-white"
+          className="bg-card"
           value={search}
           onChange={(e) => setSearch(e.target.value)}
         />
         <Tabs defaultValue="all" className="w-full" onValueChange={setActiveTab}>
-          <TabsList className="w-full justify-start overflow-x-auto">
-            <TabsTrigger value="all">All</TabsTrigger>
-            <TabsTrigger value="visit" className="flex gap-1 items-center"><Mountain className="h-3 w-3" /> Spots</TabsTrigger>
-            <TabsTrigger value="stay" className="flex gap-1 items-center"><Bed className="h-3 w-3" /> Stay</TabsTrigger>
-            <TabsTrigger value="eat" className="flex gap-1 items-center"><Utensils className="h-3 w-3" /> Eat & Drink</TabsTrigger>
+          <TabsList className="w-full justify-start overflow-x-auto bg-card">
+            <TabsTrigger value="all" className="data-[state=active]:bg-secondary data-[state=active]:text-secondary-foreground">All</TabsTrigger>
+            <TabsTrigger value="visit" className="flex gap-1 items-center data-[state=active]:bg-secondary data-[state=active]:text-secondary-foreground"><Mountain className="h-3 w-3" /> Spots</TabsTrigger>
+            <TabsTrigger value="stay" className="flex gap-1 items-center data-[state=active]:bg-secondary data-[state=active]:text-secondary-foreground"><Bed className="h-3 w-3" /> Stay</TabsTrigger>
+            <TabsTrigger value="eat" className="flex gap-1 items-center data-[state=active]:bg-secondary data-[state=active]:text-secondary-foreground"><Utensils className="h-3 w-3" /> Eat & Drink</TabsTrigger>
           </TabsList>
         </Tabs>
       </div>
