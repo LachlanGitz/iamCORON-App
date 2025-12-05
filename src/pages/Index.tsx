@@ -8,20 +8,20 @@ const Index = () => {
   return (
     <div className="space-y-6">
       {/* Hero / Weather Widget */}
-      <Card className="bg-gradient-to-br from-primary/90 to-primary text-primary-foreground border-none overflow-hidden relative">
-        <div className="absolute right-0 top-0 p-8 opacity-10">
+      <Card className="bg-gradient-to-br from-primary to-yellow-400 text-primary-foreground border-none overflow-hidden relative shadow-md">
+        <div className="absolute right-0 top-0 p-8 opacity-20">
           <CloudSun className="h-32 w-32" />
         </div>
         <CardContent className="p-6 relative z-10">
           <div className="flex justify-between items-start">
             <div>
-              <p className="text-primary-foreground/80 text-sm font-medium">Monday, Oct 24</p>
-              <h1 className="text-3xl font-bold mt-1">Good Morning!</h1>
-              <p className="mt-2 text-sm opacity-90">Coron, Palawan</p>
+              <p className="text-primary-foreground/80 text-sm font-bold uppercase tracking-wider">Welcome to</p>
+              <h1 className="text-3xl font-black mt-0 text-primary-foreground">iamCORON</h1>
+              <p className="mt-2 text-sm font-medium opacity-90">Monday, Oct 24 • Coron, Palawan</p>
             </div>
-            <div className="text-right">
+            <div className="text-right text-primary-foreground">
               <span className="text-4xl font-bold">29°C</span>
-              <p className="text-xs mt-1">Partly Cloudy</p>
+              <p className="text-xs mt-1 font-medium">Partly Cloudy</p>
             </div>
           </div>
         </CardContent>
@@ -40,7 +40,7 @@ const Index = () => {
           </Card>
         </Link>
         <Link to="/emergency">
-          <Card className="hover:shadow-lg transition-all cursor-pointer border-l-4 border-l-blue-500 h-full">
+          <Card className="hover:shadow-lg transition-all cursor-pointer border-l-4 border-l-blue-600 h-full">
             <CardContent className="p-4 flex flex-col items-center justify-center text-center space-y-2 h-full">
               <div className="p-3 bg-blue-100 rounded-full text-blue-600">
                 <Phone className="h-6 w-6" />
@@ -50,16 +50,16 @@ const Index = () => {
           </Card>
         </Link>
         <Link to="/map">
-          <Card className="hover:shadow-lg transition-all cursor-pointer h-full">
+          <Card className="hover:shadow-lg transition-all cursor-pointer border-l-4 border-l-primary h-full">
             <CardContent className="p-4 flex flex-col items-center justify-center text-center space-y-2 h-full">
-              <div className="p-3 bg-green-100 rounded-full text-green-600">
-                <Map className="h-6 w-6" />
+              <div className="p-3 bg-yellow-100 rounded-full text-primary-foreground">
+                <Map className="h-6 w-6 text-yellow-700" />
               </div>
               <span className="font-semibold text-sm">Tourism Map</span>
             </CardContent>
           </Card>
         </Link>
-        <Card className="hover:shadow-lg transition-all cursor-pointer h-full">
+        <Card className="hover:shadow-lg transition-all cursor-pointer border-l-4 border-l-orange-500 h-full">
           <CardContent className="p-4 flex flex-col items-center justify-center text-center space-y-2 h-full">
             <div className="p-3 bg-orange-100 rounded-full text-orange-600">
               <Info className="h-6 w-6" />
@@ -72,15 +72,15 @@ const Index = () => {
       {/* Announcements */}
       <div className="space-y-3">
         <div className="flex items-center justify-between">
-          <h3 className="font-bold text-lg">Announcements</h3>
-          <Button variant="link" className="text-xs h-auto p-0">View all</Button>
+          <h3 className="font-bold text-lg text-secondary">Announcements</h3>
+          <Button variant="link" className="text-xs h-auto p-0 text-secondary">View all</Button>
         </div>
         
-        <Card>
+        <Card className="border-l-4 border-l-secondary">
           <CardContent className="p-4">
             <div className="flex gap-4">
-              <div className="h-12 w-12 rounded-lg bg-primary/10 flex items-center justify-center flex-shrink-0">
-                <FileText className="h-6 w-6 text-primary" />
+              <div className="h-12 w-12 rounded-lg bg-secondary/10 flex items-center justify-center flex-shrink-0">
+                <FileText className="h-6 w-6 text-secondary" />
               </div>
               <div>
                 <h4 className="font-semibold text-sm">Scheduled Power Interruption</h4>
@@ -93,11 +93,11 @@ const Index = () => {
           </CardContent>
         </Card>
 
-        <Card>
+        <Card className="border-l-4 border-l-secondary">
           <CardContent className="p-4">
             <div className="flex gap-4">
-              <div className="h-12 w-12 rounded-lg bg-primary/10 flex items-center justify-center flex-shrink-0">
-                <FileText className="h-6 w-6 text-primary" />
+              <div className="h-12 w-12 rounded-lg bg-secondary/10 flex items-center justify-center flex-shrink-0">
+                <FileText className="h-6 w-6 text-secondary" />
               </div>
               <div>
                 <h4 className="font-semibold text-sm">Medical Mission</h4>

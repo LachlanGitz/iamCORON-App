@@ -1,5 +1,5 @@
 import React from 'react';
-import { Home, Phone, AlertTriangle, User } from 'lucide-react';
+import { Home, Phone, AlertTriangle, Map } from 'lucide-react';
 import { useLocation, Link } from 'react-router-dom';
 import { cn } from '@/lib/utils';
 
@@ -10,11 +10,11 @@ const BottomNav = () => {
     { icon: Home, label: 'Home', path: '/' },
     { icon: Phone, label: 'Emergency', path: '/emergency' },
     { icon: AlertTriangle, label: 'Report', path: '/report' },
-    { icon: User, label: 'Profile', path: '/profile' }, // Placeholder for now
+    { icon: Map, label: 'Map', path: '/map' },
   ];
 
   return (
-    <div className="fixed bottom-0 left-0 right-0 border-t bg-background/80 backdrop-blur-md z-50 pb-safe">
+    <div className="fixed bottom-0 left-0 right-0 border-t bg-background/95 backdrop-blur-md z-50 pb-safe shadow-lg">
       <div className="flex justify-around items-center h-16 max-w-md mx-auto">
         {navItems.map((item) => {
           const isActive = location.pathname === item.path;
@@ -23,12 +23,12 @@ const BottomNav = () => {
               key={item.path}
               to={item.path}
               className={cn(
-                "flex flex-col items-center justify-center w-full h-full space-y-1 transition-colors",
-                isActive ? "text-primary" : "text-muted-foreground hover:text-primary/70"
+                "flex flex-col items-center justify-center w-full h-full space-y-1 transition-all duration-200",
+                isActive ? "text-secondary font-semibold" : "text-muted-foreground hover:text-secondary/70"
               )}
             >
-              <item.icon className={cn("h-5 w-5", isActive && "fill-current")} />
-              <span className="text-[10px] font-medium">{item.label}</span>
+              <item.icon className={cn("h-5 w-5", isActive && "fill-current scale-110")} />
+              <span className="text-[10px]">{item.label}</span>
             </Link>
           );
         })}
