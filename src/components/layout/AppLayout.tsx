@@ -7,19 +7,26 @@ import { Bell } from 'lucide-react';
 
 const AppLayout = () => {
   return (
-    <div className="min-h-screen bg-gray-50/50 pb-20">
+    <div className="min-h-screen bg-gray-50/50 pb-20 relative overflow-hidden">
+      {/* Marble Background Pattern */}
+      <div className="absolute inset-0 z-0 opacity-40 pointer-events-none" 
+        style={{
+          backgroundImage: `url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)' opacity='0.1'/%3E%3C/svg%3E")`,
+        }}
+      />
+      
       {/* Header */}
-      <header className="sticky top-0 z-40 w-full border-b bg-background/80 backdrop-blur-md">
+      <header className="sticky top-0 z-40 w-full border-b border-white/20 bg-white/70 backdrop-blur-md shadow-sm">
         <div className="flex h-16 items-center justify-between px-4 max-w-md mx-auto">
           <Logo />
-          <Button variant="ghost" size="icon" className="rounded-full">
+          <Button variant="ghost" size="icon" className="rounded-full hover:bg-white/50 text-secondary">
             <Bell className="h-5 w-5" />
           </Button>
         </div>
       </header>
 
       {/* Main Content */}
-      <main className="max-w-md mx-auto p-4 animate-in fade-in duration-500">
+      <main className="relative z-10 max-w-md mx-auto p-4 animate-in fade-in duration-500">
         <Outlet />
       </main>
 

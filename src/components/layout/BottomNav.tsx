@@ -15,26 +15,30 @@ const BottomNav = () => {
   ];
 
   return (
-    <div className="fixed bottom-0 left-0 right-0 border-t bg-background/95 backdrop-blur-md z-50 pb-safe shadow-lg">
-      <div className="flex justify-around items-center h-16 max-w-md mx-auto px-2">
-        {navItems.map((item) => {
-          // Check if active, including sub-routes for services
-          const isActive = location.pathname === item.path || (item.path !== '/' && location.pathname.startsWith(item.path));
-          
-          return (
-            <Link
-              key={item.path}
-              to={item.path}
-              className={cn(
-                "flex flex-col items-center justify-center w-full h-full space-y-1 transition-all duration-200",
-                isActive ? "text-secondary font-semibold" : "text-muted-foreground hover:text-secondary/70"
-              )}
-            >
-              <item.icon className={cn("h-5 w-5", isActive && "fill-current scale-110")} />
-              <span className="text-[10px]">{item.label}</span>
-            </Link>
-          );
-        })}
+    <div className="fixed bottom-4 left-4 right-4 z-50">
+      <div className="glass-panel rounded-2xl mx-auto max-w-md shadow-2xl border border-white/50">
+        <div className="flex justify-around items-center h-16 px-2">
+          {navItems.map((item) => {
+            const isActive = location.pathname === item.path || (item.path !== '/' && location.pathname.startsWith(item.path));
+            
+            return (
+              <Link
+                key={item.path}
+                to={item.path}
+                className={cn(
+                  "flex flex-col items-center justify-center w-full h-full space-y-1 transition-all duration-300 relative",
+                  isActive ? "text-secondary" : "text-gray-400 hover:text-secondary/70"
+                )}
+              >
+                {isActive && (
+                  <div className="absolute -top-3 w-8 h-1 bg-secondary rounded-full shadow-[0_0_10px_rgba(59,130,246,0.5)]" />
+                )}
+                <item.icon className={cn("h-5 w-5 transition-transform duration-300", isActive && "-translate-y-1")} />
+                <span className={cn("text-[10px] font-medium transition-opacity duration-300", isActive ? "opacity-100" : "opacity-70")}>{item.label}</span>
+              </Link>
+            );
+          })}
+        </div>
       </div>
     </div>
   );
