@@ -8,14 +8,14 @@ import { Label } from '@/components/ui/label';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Checkbox } from '@/components/ui/checkbox';
 import { toast } from 'sonner';
-import { MapPin, Camera, Loader2, AlertTriangle, UserX, FileSearch, LogIn } from 'lucide-react';
+import { MapPin, Camera, Loader2, AlertTriangle, UserX, FileSearch, LogIn, UserPlus, CalendarDays, Phone } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '@/components/auth/SessionContextProvider'; // Import useAuth
 
 const ReportIssue = () => {
   const [loading, setLoading] = useState(false);
   const [submitted, setSubmitted] = useState(false);
-  const [reportType, setReportType] = useState("incident"); // incident or abuse
+  const [reportType, setReportType] = useState("incident"); // incident, abuse, or missing-person
   const navigate = useNavigate();
   const { user } = useAuth(); // Get user from auth context
 
@@ -32,7 +32,7 @@ const ReportIssue = () => {
     setTimeout(() => {
       setLoading(false);
       toast.success("Report submitted successfully!", {
-        description: "Reference Ticket: #CRN-2024-" + Math.floor(Math.random() * 9000 + 1000)
+        description: `Reference Ticket: #CRN-2024-${Math.floor(Math.random() * 9000 + 1000)}`
       });
       setSubmitted(true);
     }, 2000);
@@ -71,7 +71,7 @@ const ReportIssue = () => {
       </div>
 
       <Tabs defaultValue="incident" className="w-full" onValueChange={setReportType}>
-        <TabsList className="grid w-full grid-cols-2 mb-4">
+        <TabsList className="grid w-full grid-cols-3 mb-4">
           <TabsTrigger value="incident" className="flex items-center gap-2">
             <AlertTriangle className="h-4 w-4" />
             Incident
@@ -79,6 +79,10 @@ const ReportIssue = () => {
           <TabsTrigger value="abuse" className="flex items-center gap-2">
             <UserX className="h-4 w-4" />
             Abuse
+          </TabsTrigger>
+          <TabsTrigger value="missing-person" className="flex items-center gap-2">
+            <UserPlus className="h-4 w-4" />
+            Missing
           </TabsTrigger>
         </TabsList>
 
@@ -231,6 +235,88 @@ const ReportIssue = () => {
                     </>
                   ) : (
                     "Submit Abuse Report"
+                  )}
+                </Button>
+              </form>
+            </CardContent>
+          </Card>
+        </TabsContent>
+
+        {/* Missing Person Report Form */}
+        <TabsContent value="missing-person">
+          <Card className="border-blue-100 dark:border-blue-900/20">
+            <CardContent className="pt-6">
+              <form onSubmit={handleSubmit} className="space-y-4">
+                <div className="bg-blue-50 dark:bg-blue-900/10 p-3 rounded-md text-xs text-blue-600 dark:text-blue-400 mb-4 flex gap-2">
+                  <UserPlus className="h-4 w-4 flex-shrink-0" />
+                  <p>Provide as much detail as possible to assist in the search.</p>
+                </div>
+
+                <div className="space-y-2">
+                  <Label htmlFor="missing-name">Full Name of Missing Person</Label>
+                  <Input id="missing-name" placeholder="First Name, Last Name" required disabled={!user} />
+                </div>
+
+                <div className="space-y-2">
+                  <Label htmlFor="last-seen-location">Last Known Location</Label>
+                  <div className="relative">
+                    <MapPin className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
+                    <Input id="last-seen-location" placeholder="e.g., Coron Public Market" className="pl-9" required disabled={!user} />
+                  </div>
+                  <Button type="button" variant="outline" size="sm" className="w-full text-xs" onClick={() => toast.info("Getting GPS location...")} disabled={!user}>
+                    <MapPin className="mr-2 h-3 w-3" />
+                    Use Current GPS Location
+                  </Button>
+                </div>
+
+                <div className="space-y-2">
+                  <Label htmlFor="last-seen-datetime">Last Seen Date & Time</Label>
+                  <div className="relative">
+                    <CalendarDays className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
+                    <Input id="last-seen-datetime" type="datetime-local" className="pl-9" required disabled={!user} />
+                  </div>
+                </div>
+
+                <div className="space-y-2">
+                  <Label htmlFor="description-missing">Description (Appearance, Clothing, etc.)</Label>
+                  <Textarea 
+                    id="description-missing" 
+                    placeholder="Height, build, hair color, last worn clothes, distinguishing marks..." 
+                    className="min-h-[100px]"
+                    required 
+                    disabled={!user}
+                  />
+                </div>
+
+                <div className="space-y-2">
+                  <Label htmlFor="reporter-contact">Your Contact Number</Label>
+                  <div className="relative">
+                    <Phone className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
+                    <Input id="reporter-contact" type="tel" placeholder="09XX XXX XXXX" className="pl-9" required disabled={!user} />
+                  </div>
+                </div>
+
+                <div className="space-y-2">
+                  <Label>Photo of Missing Person (Optional but Recommended)</Label>
+                  <div className="border-2 border-dashed rounded-lg p-6 flex flex-col items-center justify-center text-muted-foreground hover:bg-muted/50 transition-colors cursor-pointer" onClick={() => !user && toast.error("Please log in to upload photos.")}>
+                    <Camera className="h-8 w-8 mb-2" />
+                    <span className="text-xs">Tap to upload photo</span>
+                  </div>
+                </div>
+
+                {!user && (
+                  <div className="text-center text-sm text-red-500 flex items-center justify-center gap-2 mb-4">
+                    <LogIn className="h-4 w-4" /> Please log in to submit a report.
+                  </div>
+                )}
+                <Button type="submit" className="w-full" size="lg" disabled={loading || !user}>
+                  {loading ? (
+                    <>
+                      <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                      Submitting...
+                    </>
+                  ) : (
+                    "Submit Missing Person Report"
                   )}
                 </Button>
               </form>
