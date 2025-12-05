@@ -19,6 +19,7 @@ import PowerWaterWatch from "./pages/PowerWaterWatch";
 import PrivateServices from "./pages/PrivateServices";
 import Settings from "./pages/Settings";
 import NotFound from "./pages/NotFound";
+import Login from "./pages/Login"; // Import the new Login page
 
 const queryClient = new QueryClient();
 
@@ -47,6 +48,7 @@ const App = () => (
               {/* Fallback for profile to settings */}
               <Route path="/profile" element={<Settings />} />
             </Route>
+            <Route path="/login" element={<Login />} /> {/* Add the new Login route */}
             <Route path="*" element={<NotFound />} />
           </Routes>
         </BrowserRouter>

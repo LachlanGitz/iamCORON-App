@@ -1,10 +1,13 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { useTheme } from 'next-themes';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Label } from '@/components/ui/label';
 import { Switch } from '@/components/ui/switch';
 import { Button } from '@/components/ui/button';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
+import { Input } from '@/components/ui/input';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { Textarea } from '@/components/ui/textarea';
 import { 
   User, 
   Moon, 
@@ -15,12 +18,105 @@ import {
   Globe, 
   Smartphone,
   ChevronRight,
-  Laptop
+  Laptop,
+  MapPin,
+  Home,
+  Hotel
 } from 'lucide-react';
 import { toast } from 'sonner';
+import { useAuth } from '@/components/auth/SessionContextProvider';
+import { supabase } from '@/integrations/supabase/client';
+import { useNavigate } from 'react-router-dom';
 
 const Settings = () => {
   const { theme, setTheme } = useTheme();
+  const { user, profile, loading, fetchProfile } = useAuth();
+  const navigate = useNavigate();
+
+  const [firstName, setFirstName] = useState(profile?.first_name || '');
+  const [lastName, setLastName] = useState(profile?.last_name || '');
+  const [userType, setUserType] = useState(profile?.user_type || '');
+  const [address, setAddress] = useState(profile?.address || '');
+  const [hotelName, setHotelName] = useState(profile?.hotel_name || '');
+  const [isEditingProfile, setIsEditingProfile] = useState(false);
+  const [isSavingProfile, setIsSavingProfile] = useState(false);
+
+  useEffect(() => {
+    if (profile) {
+      setFirstName(profile.first_name || '');
+      setLastName(profile.last_name || '');
+      setUserType(profile.user_type || '');
+      setAddress(profile.address || '');
+      setHotelName(profile.hotel_name || '');
+    }
+  }, [profile]);
+
+  const handleLogout = async () => {
+    const { error } = await supabase.auth.signOut();
+    if (error) {
+      toast.error("Logout failed", { description: error.message });
+    } else {
+      toast.success("Logged out successfully");
+      navigate('/login');
+    }
+  };
+
+  const handleSaveProfile = async () => {
+    if (!user) {
+      toast.error("You must be logged in to update your profile.");
+      return;
+    }
+    setIsSavingProfile(true);
+    try {
+      const updates = {
+        id: user.id,
+        first_name: firstName,
+        last_name: lastName,
+        user_type: userType,
+        address: userType === 'resident' ? address : null,
+        hotel_name: userType === 'tourist' ? hotelName : null,
+        updated_at: new Date().toISOString(),
+      };
+
+      const { error } = await supabase.from('profiles').upsert(updates);
+
+      if (error) {
+        throw error;
+      }
+      await fetchProfile(); // Refresh profile data in context
+      toast.success("Profile updated successfully!");
+      setIsEditingProfile(false);
+    } catch (error: any) {
+      console.error("Error updating profile:", error.message);
+      toast.error("Failed to update profile.", { description: error.message });
+    } finally {
+      setIsSavingProfile(false);
+    }
+  };
+
+  if (loading) {
+    return (
+      <div className="flex flex-col items-center justify-center h-[60vh]">
+        <Loader2 className="h-8 w-8 animate-spin text-primary" />
+        <p className="mt-4 text-muted-foreground">Loading profile...</p>
+      </div>
+    );
+  }
+
+  if (!user) {
+    return (
+      <div className="flex flex-col items-center justify-center h-[60vh] text-center space-y-4">
+        <LogIn className="h-12 w-12 text-muted-foreground" />
+        <h2 className="text-xl font-bold">Please Log In</h2>
+        <p className="text-muted-foreground">You need to be logged in to view your settings.</p>
+        <Button onClick={() => navigate('/login')}>Go to Login</Button>
+      </div>
+    );
+  }
+
+  const getInitials = (fName: string, lName: string) => {
+    return `${fName ? fName[0] : ''}${lName ? lName[0] : ''}`.toUpperCase();
+  };
 
   return (
     <div className="space-y-6 pb-20">
@@ -33,16 +129,91 @@ const Settings = () => {
       <div className="glass-panel p-6 rounded-xl flex items-center gap-4">
         <div className="h-16 w-16 rounded-full bg-gradient-to-br from-primary to-yellow-600 p-1 shadow-lg">
           <Avatar className="h-full w-full border-2 border-white">
-            <AvatarImage src="https://github.com/shadcn.png" />
-            <AvatarFallback>CN</AvatarFallback>
+            <AvatarImage src={profile?.avatar_url || "https://github.com/shadcn.png"} />
+            <AvatarFallback>{getInitials(profile?.first_name || '', profile?.last_name || '')}</AvatarFallback>
           </Avatar>
         </div>
         <div>
-          <h3 className="text-lg font-bold text-gray-900 dark:text-gray-100">Juan Dela Cruz</h3>
-          <p className="text-sm text-gray-500 dark:text-gray-400">Resident • Brgy. Poblacion 1</p>
-          <Button variant="link" className="px-0 h-auto text-xs text-primary">Edit Profile</Button>
+          <h3 className="text-lg font-bold text-gray-900 dark:text-gray-100">
+            {profile?.first_name || 'Guest'} {profile?.last_name || 'User'}
+          </h3>
+          <p className="text-sm text-gray-500 dark:text-gray-400">
+            {profile?.user_type === 'resident' ? `Resident • ${profile?.address || 'Address not set'}` : 
+             profile?.user_type === 'tourist' ? `Tourist • ${profile?.hotel_name || 'Hotel not set'}` :
+             'User Type not set'}
+          </p>
+          <Button variant="link" className="px-0 h-auto text-xs text-primary" onClick={() => setIsEditingProfile(true)}>Edit Profile</Button>
         </div>
       </div>
+
+      {isEditingProfile && (
+        <Card className="border-none shadow-md bg-white/50 dark:bg-card/50 backdrop-blur-sm">
+          <CardHeader className="pb-3">
+            <CardTitle className="text-base flex items-center gap-2">
+              <User className="h-4 w-4" /> Edit Profile
+            </CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            <div className="grid grid-cols-2 gap-4">
+              <div className="space-y-2">
+                <Label htmlFor="firstName">First Name</Label>
+                <Input id="firstName" value={firstName} onChange={(e) => setFirstName(e.target.value)} />
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="lastName">Last Name</Label>
+                <Input id="lastName" value={lastName} onChange={(e) => setLastName(e.target.value)} />
+              </div>
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="userType">User Type</Label>
+              <Select value={userType} onValueChange={setUserType}>
+                <SelectTrigger id="userType">
+                  <SelectValue placeholder="Select user type" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="resident">Resident</SelectItem>
+                  <SelectItem value="tourist">Tourist</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+            {userType === 'resident' && (
+              <div className="space-y-2">
+                <Label htmlFor="address">Complete Address</Label>
+                <div className="relative">
+                  <Home className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
+                  <Textarea id="address" placeholder="House No., Street, Barangay, Town" className="pl-9 min-h-[80px]" value={address} onChange={(e) => setAddress(e.target.value)} />
+                </div>
+                <Button type="button" variant="outline" size="sm" className="w-full text-xs" onClick={() => toast.info("Getting GPS location...")}>
+                  <MapPin className="mr-2 h-3 w-3" />
+                  Use Current GPS Location
+                </Button>
+              </div>
+            )}
+            {userType === 'tourist' && (
+              <div className="space-y-2">
+                <Label htmlFor="hotelName">Hotel Name / Accommodation</Label>
+                <div className="relative">
+                  <Hotel className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
+                  <Input id="hotelName" placeholder="e.g., The Funny Lion" className="pl-9" value={hotelName} onChange={(e) => setHotelName(e.target.value)} />
+                </div>
+              </div>
+            )}
+            <div className="flex gap-2">
+              <Button variant="outline" className="flex-1" onClick={() => setIsEditingProfile(false)}>Cancel</Button>
+              <Button className="flex-1" onClick={handleSaveProfile} disabled={isSavingProfile}>
+                {isSavingProfile ? (
+                  <>
+                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                    Saving...
+                  </>
+                ) : (
+                  "Save Changes"
+                )}
+              </Button>
+            </div>
+          </CardContent>
+        </Card>
+      )}
 
       {/* Appearance */}
       <Card className="border-none shadow-md bg-white/50 dark:bg-card/50 backdrop-blur-sm">
@@ -139,7 +310,7 @@ const Settings = () => {
       <Button 
         variant="destructive" 
         className="w-full" 
-        onClick={() => toast.success("Logged out successfully")}
+        onClick={handleLogout}
       >
         <LogOut className="mr-2 h-4 w-4" /> Log Out
       </Button>

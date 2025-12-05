@@ -8,17 +8,25 @@ import { Label } from '@/components/ui/label';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Checkbox } from '@/components/ui/checkbox';
 import { toast } from 'sonner';
-import { MapPin, Camera, Loader2, AlertTriangle, UserX, FileSearch } from 'lucide-react';
+import { MapPin, Camera, Loader2, AlertTriangle, UserX, FileSearch, LogIn } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
+import { useAuth } from '@/components/auth/SessionContextProvider'; // Import useAuth
 
 const ReportIssue = () => {
   const [loading, setLoading] = useState(false);
   const [submitted, setSubmitted] = useState(false);
   const [reportType, setReportType] = useState("incident"); // incident or abuse
   const navigate = useNavigate();
+  const { user } = useAuth(); // Get user from auth context
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
+    if (!user) {
+      toast.error("Please log in to submit a report.");
+      navigate('/login');
+      return;
+    }
+
     setLoading(true);
     // Simulate API call
     setTimeout(() => {
@@ -81,7 +89,7 @@ const ReportIssue = () => {
               <form onSubmit={handleSubmit} className="space-y-4">
                 <div className="space-y-2">
                   <Label htmlFor="incident-type">Incident Type</Label>
-                  <Select required>
+                  <Select required disabled={!user}>
                     <SelectTrigger id="incident-type">
                       <SelectValue placeholder="Select category" />
                     </SelectTrigger>
@@ -101,9 +109,9 @@ const ReportIssue = () => {
                   <Label htmlFor="location">Location</Label>
                   <div className="relative">
                     <MapPin className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
-                    <Input id="location" placeholder="Nearest Landmark / Street" className="pl-9" required />
+                    <Input id="location" placeholder="Nearest Landmark / Street" className="pl-9" required disabled={!user} />
                   </div>
-                  <Button type="button" variant="outline" size="sm" className="w-full text-xs" onClick={() => toast.info("Getting GPS location...")}>
+                  <Button type="button" variant="outline" size="sm" className="w-full text-xs" onClick={() => toast.info("Getting GPS location...")} disabled={!user}>
                     <MapPin className="mr-2 h-3 w-3" />
                     Use Current GPS Location
                   </Button>
@@ -116,18 +124,24 @@ const ReportIssue = () => {
                     placeholder="Describe the incident details..." 
                     className="min-h-[100px]"
                     required 
+                    disabled={!user}
                   />
                 </div>
 
                 <div className="space-y-2">
                   <Label>Photo Evidence (Optional)</Label>
-                  <div className="border-2 border-dashed rounded-lg p-6 flex flex-col items-center justify-center text-muted-foreground hover:bg-muted/50 transition-colors cursor-pointer">
+                  <div className="border-2 border-dashed rounded-lg p-6 flex flex-col items-center justify-center text-muted-foreground hover:bg-muted/50 transition-colors cursor-pointer" onClick={() => !user && toast.error("Please log in to upload photos.")}>
                     <Camera className="h-8 w-8 mb-2" />
                     <span className="text-xs">Tap to take a photo or upload</span>
                   </div>
                 </div>
 
-                <Button type="submit" className="w-full" size="lg" disabled={loading}>
+                {!user && (
+                  <div className="text-center text-sm text-red-500 flex items-center justify-center gap-2 mb-4">
+                    <LogIn className="h-4 w-4" /> Please log in to submit a report.
+                  </div>
+                )}
+                <Button type="submit" className="w-full" size="lg" disabled={loading || !user}>
                   {loading ? (
                     <>
                       <Loader2 className="mr-2 h-4 w-4 animate-spin" />
@@ -154,7 +168,7 @@ const ReportIssue = () => {
 
                 <div className="space-y-2">
                   <Label htmlFor="abuse-type">Report Against</Label>
-                  <Select required>
+                  <Select required disabled={!user}>
                     <SelectTrigger id="abuse-type">
                       <SelectValue placeholder="Select offender type" />
                     </SelectTrigger>
@@ -173,6 +187,7 @@ const ReportIssue = () => {
                     id="identity" 
                     placeholder="e.g., Body #1234 or Name of Person" 
                     required 
+                    disabled={!user}
                   />
                   <p className="text-[10px] text-muted-foreground">For tricycles, please include Body Number or Plate Number.</p>
                 </div>
@@ -184,11 +199,12 @@ const ReportIssue = () => {
                     placeholder="Please describe what happened, when, and where..." 
                     className="min-h-[100px]"
                     required 
+                    disabled={!user}
                   />
                 </div>
 
                 <div className="flex items-center space-x-2 py-2">
-                  <Checkbox id="anonymous" />
+                  <Checkbox id="anonymous" disabled={!user} />
                   <Label htmlFor="anonymous" className="text-sm font-normal cursor-pointer">
                     Submit anonymously
                   </Label>
@@ -196,13 +212,18 @@ const ReportIssue = () => {
 
                 <div className="space-y-2">
                   <Label>Evidence (Photo/Video/Audio)</Label>
-                  <div className="border-2 border-dashed rounded-lg p-6 flex flex-col items-center justify-center text-muted-foreground hover:bg-muted/50 transition-colors cursor-pointer">
+                  <div className="border-2 border-dashed rounded-lg p-6 flex flex-col items-center justify-center text-muted-foreground hover:bg-muted/50 transition-colors cursor-pointer" onClick={() => !user && toast.error("Please log in to upload evidence.")}>
                     <Camera className="h-8 w-8 mb-2" />
                     <span className="text-xs">Tap to upload evidence</span>
                   </div>
                 </div>
 
-                <Button type="submit" variant="destructive" className="w-full" size="lg" disabled={loading}>
+                {!user && (
+                  <div className="text-center text-sm text-red-500 flex items-center justify-center gap-2 mb-4">
+                    <LogIn className="h-4 w-4" /> Please log in to submit a report.
+                  </div>
+                )}
+                <Button type="submit" variant="destructive" className="w-full" size="lg" disabled={loading || !user}>
                   {loading ? (
                     <>
                       <Loader2 className="mr-2 h-4 w-4 animate-spin" />
