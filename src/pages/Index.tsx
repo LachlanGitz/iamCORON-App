@@ -114,10 +114,10 @@ const Index = () => {
       {/* Quick Actions Grid - Glass/Marble Tiles */}
       <div className="grid grid-cols-2 gap-4">
         {[
-          { title: "Report Incident", icon: AlertTriangle, color: "text-red-500", bg: "bg-red-50", link: "/report", border: "border-l-red-500" },
-          { title: "Emergency", icon: Phone, color: "text-blue-600", bg: "bg-blue-50", link: "/emergency", border: "border-l-blue-600" },
-          { title: "Tourism Map", icon: Map, color: "text-yellow-600", bg: "bg-yellow-50", link: "/map", border: "border-l-yellow-500" },
-          { title: "Guide", icon: Info, color: "text-orange-500", bg: "bg-orange-50", link: "/services", border: "border-l-orange-500" }
+          { title: "Report Incident", icon: AlertTriangle, color: "text-red-500", bg: "bg-red-50 dark:bg-red-900/30", link: "/report", border: "border-l-red-500" },
+          { title: "Emergency", icon: Phone, color: "text-blue-600", bg: "bg-blue-50 dark:bg-blue-900/30", link: "/emergency", border: "border-l-blue-600" },
+          { title: "Tourism Map", icon: Map, color: "text-yellow-600", bg: "bg-yellow-50 dark:bg-yellow-900/30", link: "/map", border: "border-l-yellow-500" },
+          { title: "Guide", icon: Info, color: "text-orange-500", bg: "bg-orange-50 dark:bg-orange-900/30", link: "/services", border: "border-l-orange-500" }
         ].map((item, i) => (
           <Link key={i} to={item.link}>
             <div className={cn(
@@ -128,7 +128,7 @@ const Index = () => {
               <div className={cn("p-3 rounded-full shadow-inner", item.bg, item.color)}>
                 <item.icon className="h-6 w-6" />
               </div>
-              <span className="font-semibold text-sm text-gray-700">{item.title}</span>
+              <span className="font-semibold text-sm text-gray-700 dark:text-gray-200">{item.title}</span>
             </div>
           </Link>
         ))}
@@ -137,11 +137,11 @@ const Index = () => {
       {/* Announcements */}
       <div className="space-y-4">
         <div className="flex items-center justify-between px-1">
-          <h3 className="font-bold text-lg text-gray-800 flex items-center gap-2">
+          <h3 className="font-bold text-lg text-gray-800 dark:text-gray-100 flex items-center gap-2">
             <span className="w-1 h-6 bg-secondary rounded-full"></span>
             Announcements
           </h3>
-          <Button variant="ghost" size="sm" className="text-secondary hover:bg-secondary/10">
+          <Button variant="ghost" size="sm" className="text-secondary dark:text-primary hover:bg-secondary/10">
             View all <ChevronRight className="h-4 w-4 ml-1" />
           </Button>
         </div>
@@ -160,13 +160,13 @@ const Index = () => {
             icon: FileText
           }
         ].map((item, i) => (
-          <div key={i} className="glass-panel p-4 rounded-xl flex gap-4 items-start group hover:bg-white/90 transition-colors">
+          <div key={i} className="glass-panel p-4 rounded-xl flex gap-4 items-start group hover:bg-white/90 dark:hover:bg-black/50 transition-colors">
             <div className="h-12 w-12 rounded-xl bg-gradient-to-br from-secondary/10 to-secondary/5 border border-secondary/10 flex items-center justify-center flex-shrink-0 shadow-sm group-hover:scale-105 transition-transform">
-              <item.icon className="h-6 w-6 text-secondary" />
+              <item.icon className="h-6 w-6 text-secondary dark:text-secondary-foreground" />
             </div>
             <div className="flex-1">
-              <h4 className="font-bold text-sm text-gray-800">{item.title}</h4>
-              <p className="text-xs text-gray-500 mt-1 line-clamp-2 leading-relaxed">
+              <h4 className="font-bold text-sm text-gray-800 dark:text-gray-100">{item.title}</h4>
+              <p className="text-xs text-gray-500 dark:text-gray-400 mt-1 line-clamp-2 leading-relaxed">
                 {item.desc}
               </p>
               <p className="text-[10px] text-gray-400 mt-2 font-medium">{item.time}</p>

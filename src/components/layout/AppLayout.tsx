@@ -9,7 +9,7 @@ const AppLayout = () => {
   const navigate = useNavigate();
 
   return (
-    <div className="min-h-screen bg-gray-50/50 dark:bg-neutral-900 pb-20 relative overflow-hidden transition-colors duration-300">
+    <div className="min-h-screen bg-background pb-20 relative overflow-hidden transition-colors duration-300">
       {/* Marble Background Pattern */}
       <div className="absolute inset-0 z-0 opacity-40 pointer-events-none dark:opacity-20" 
         style={{
