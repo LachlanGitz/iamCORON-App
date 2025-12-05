@@ -38,15 +38,15 @@
   }
 
   .dark {
-    /* Adjusted for "Dark Marble" look - Onyx style */
-    --background: 240 10% 3.9%;
-    --foreground: 0 0% 98%;
+    /* Adjusted for a softer "Dark Marble" look - Deep Charcoal/Slate instead of Black */
+    --background: 220 15% 10%; /* Much softer dark grey/blue base */
+    --foreground: 210 40% 98%;
     
-    --card: 240 10% 3.9%;
-    --card-foreground: 0 0% 98%;
+    --card: 222 15% 12%; /* Slightly lighter than background */
+    --card-foreground: 210 40% 98%;
     
-    --popover: 240 10% 3.9%;
-    --popover-foreground: 0 0% 98%;
+    --popover: 222 15% 12%;
+    --popover-foreground: 210 40% 98%;
     
     --primary: 45 93% 47%;
     --primary-foreground: 222.2 47.4% 11.2%;
@@ -54,18 +54,18 @@
     --secondary: 217.2 32.6% 17.5%;
     --secondary-foreground: 210 40% 98%;
     
-    --muted: 240 3.7% 15.9%;
-    --muted-foreground: 240 5% 64.9%;
+    --muted: 220 15% 16%;
+    --muted-foreground: 215 20% 65%;
     
-    --accent: 240 3.7% 15.9%;
-    --accent-foreground: 0 0% 98%;
+    --accent: 220 15% 16%;
+    --accent-foreground: 210 40% 98%;
     
     --destructive: 0 62.8% 30.6%;
-    --destructive-foreground: 0 0% 98%;
+    --destructive-foreground: 210 40% 98%;
     
-    --border: 240 3.7% 15.9%;
-    --input: 240 3.7% 15.9%;
-    --ring: 240 4.9% 83.9%;
+    --border: 220 15% 16%;
+    --input: 220 15% 16%;
+    --ring: 220 15% 20%;
   }
 }
 
@@ -86,7 +86,7 @@
 @layer utilities {
   /* Shiny Marble Effect */
   .glass-panel {
-    @apply bg-white/70 dark:bg-black/40 backdrop-blur-xl border border-white/40 dark:border-white/10 shadow-xl;
+    @apply bg-white/70 dark:bg-card/60 backdrop-blur-xl border border-white/40 dark:border-white/5 shadow-xl;
     box-shadow: 
       0 4px 6px -1px rgba(0, 0, 0, 0.05),
       0 2px 4px -1px rgba(0, 0, 0, 0.03),

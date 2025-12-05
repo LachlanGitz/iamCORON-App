@@ -14,7 +14,8 @@ import {
   LogOut, 
   Globe, 
   Smartphone,
-  ChevronRight
+  ChevronRight,
+  Laptop
 } from 'lucide-react';
 import { toast } from 'sonner';
 
@@ -44,28 +45,44 @@ const Settings = () => {
       </div>
 
       {/* Appearance */}
-      <Card className="border-none shadow-md bg-white/50 dark:bg-black/20 backdrop-blur-sm">
+      <Card className="border-none shadow-md bg-white/50 dark:bg-card/50 backdrop-blur-sm">
         <CardHeader className="pb-3">
           <CardTitle className="text-base flex items-center gap-2">
             <Sun className="h-4 w-4" /> Appearance
           </CardTitle>
         </CardHeader>
         <CardContent className="space-y-4">
-          <div className="flex items-center justify-between">
-            <div className="space-y-0.5">
-              <Label className="text-base">Dark Mode</Label>
-              <p className="text-xs text-muted-foreground">Switch between light and dark themes.</p>
+          <div className="space-y-3">
+            <Label className="text-base">Theme</Label>
+            <div className="grid grid-cols-3 gap-2">
+              <Button 
+                variant={theme === 'light' ? "default" : "outline"} 
+                className="flex gap-2"
+                onClick={() => setTheme('light')}
+              >
+                <Sun className="h-4 w-4" /> Light
+              </Button>
+              <Button 
+                variant={theme === 'dark' ? "default" : "outline"} 
+                className="flex gap-2"
+                onClick={() => setTheme('dark')}
+              >
+                <Moon className="h-4 w-4" /> Dark
+              </Button>
+              <Button 
+                variant={theme === 'system' ? "default" : "outline"} 
+                className="flex gap-2"
+                onClick={() => setTheme('system')}
+              >
+                <Laptop className="h-4 w-4" /> System
+              </Button>
             </div>
-            <Switch 
-              checked={theme === 'dark'}
-              onCheckedChange={(checked) => setTheme(checked ? 'dark' : 'light')}
-            />
           </div>
         </CardContent>
       </Card>
 
       {/* Notifications */}
-      <Card className="border-none shadow-md bg-white/50 dark:bg-black/20 backdrop-blur-sm">
+      <Card className="border-none shadow-md bg-white/50 dark:bg-card/50 backdrop-blur-sm">
         <CardHeader className="pb-3">
           <CardTitle className="text-base flex items-center gap-2">
             <Bell className="h-4 w-4" /> Notifications
@@ -97,7 +114,7 @@ const Settings = () => {
       </Card>
 
       {/* General */}
-      <Card className="border-none shadow-md bg-white/50 dark:bg-black/20 backdrop-blur-sm">
+      <Card className="border-none shadow-md bg-white/50 dark:bg-card/50 backdrop-blur-sm">
         <CardHeader className="pb-3">
           <CardTitle className="text-base flex items-center gap-2">
             <Shield className="h-4 w-4" /> General
@@ -128,7 +145,7 @@ const Settings = () => {
       </Button>
 
       <div className="text-center text-xs text-muted-foreground pt-4">
-        <p>iamCORON v1.0.2</p>
+        <p>iamCORON v1.0.3</p>
         <p>Made with ❤️ for Palawan</p>
       </div>
     </div>
