@@ -88,13 +88,18 @@ const SignUpForm = () => {
       const internalEmail = `${username}@yourdomain.com`;
 
       // 1. Sign up the user with the generated email and password
+      // Pass all profile data to options.data for the server-side trigger
       const { data: authData, error: authError } = await supabase.auth.signUp({
         email: internalEmail,
         password,
         options: {
           data: {
+            username: username,
             first_name: firstName,
             last_name: lastName,
+            user_type: userType,
+            address: userType === 'resident' ? address : null,
+            hotel_name: userType === 'tourist' ? hotelName : null,
           },
         },
       });
@@ -104,23 +109,8 @@ const SignUpForm = () => {
       }
 
       if (authData.user) {
-        // 2. Insert additional profile data into public.profiles, including the username
-        const { error: profileError } = await supabase.from('profiles').upsert({
-          id: authData.user.id,
-          username: username, // Store the actual username
-          first_name: firstName,
-          last_name: lastName,
-          user_type: userType,
-          address: userType === 'resident' ? address : null,
-          hotel_name: userType === 'tourist' ? hotelName : null,
-        });
-
-        if (profileError) {
-          console.error("Error inserting profile data:", profileError.message);
-          toast.error("Registration successful, but failed to save profile details. Please update in settings.", { duration: 5000 });
-        } else {
-          toast.success("Registration successful! You can now sign in with your username.");
-        }
+        // Profile creation is now handled by the server-side trigger (handle_new_user)
+        toast.success("Registration successful! You can now sign in with your username.");
         navigate('/'); // Redirect to home or a confirmation page
       } else {
         // This case might happen if email confirmation is required but no email is sent
