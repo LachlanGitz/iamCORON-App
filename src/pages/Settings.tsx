@@ -21,7 +21,8 @@ import {
   Laptop,
   MapPin,
   Home,
-  Hotel
+  Hotel,
+  Loader2 // Added Loader2 import
 } from 'lucide-react';
 import { toast } from 'sonner';
 import { useAuth } from '@/components/auth/SessionContextProvider';
